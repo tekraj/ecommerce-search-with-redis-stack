@@ -1,0 +1,22 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+
+import { Product } from '@ecommerce/database';
+
+import { REST_API_URL } from '../../environments/environment';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class ProductService {
+  constructor(private http: HttpClient) {}
+  listProduct(page = 1, pageSize = 50): Observable<Product[]> {
+    return this.http.get<Product[]>(
+      `${REST_API_URL}/products/${page}/${pageSize}`,
+    );
+  }
+  searchProducts(text: string): Observable<Product[]> {
+    return this.http.get<Product[]>(`${REST_API_URL}/products/search/${text}`);
+  }
+}

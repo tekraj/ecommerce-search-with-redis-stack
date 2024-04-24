@@ -1,0 +1,84 @@
+<main class="main">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <div class="col-sm-2">
+                <a class="navbar-brand" href="#">Brand</a>
+            </div>
+            <div class="col-sm-6">
+                <form class="d-flex input-group w-auto " [formGroup]="searchForm">
+                    <input type="search" class="form-control w-full" name="text" placeholder="Search Products"
+                        aria-label="Search" formControlName="searchQuery" />
+                    @if (searchResults$ | async; as searchResults) {
+                    <div class="dropdown-menu product-search-results" aria-labelledby="searchDropdown">
+                        @for (product of searchResults; track product.id) {
+                        <a class="dropdown-item" href="#">{{ product.name }}</a>
+                        }
+                    </div>
+                    }
+                </form>
+            </div>
+            <div class="col-sm-4 ">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 justify-content-end">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Link</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </nav>
+
+
+    <div class="container mt-4">
+        <mdb-carousel [controls]="true" [indicators]="true" [animation]="'fade'">
+            <mdb-carousel-item>
+                <img src="https://mdbootstrap.com/img/Photos/Slides/img%20(15).webp" class="d-block w-100" alt="..." />
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>First</h5>
+                    <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
+                </div>
+            </mdb-carousel-item>
+            <mdb-carousel-item>
+                <img src="https://mdbootstrap.com/img/Photos/Slides/img%20(22).webp" class="d-block w-100" alt="..." />
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>Second</h5>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                </div>
+            </mdb-carousel-item>
+            <mdb-carousel-item>
+                <img src="https://mdbootstrap.com/img/Photos/Slides/img%20(15).webp" class="d-block w-100" alt="..." />
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>Third</h5>
+                    <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur.</p>
+                </div>
+            </mdb-carousel-item>
+        </mdb-carousel>
+    </div>
+
+    <div class="container mt-4">
+        <div class="row">
+            @if (products$ | async; as products) {
+            @for (product of products; track product.id) {
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <img class="card-img-top" [src]="getImage('product.webp')" alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title">{{product.name}}</h5>
+                        <p class="card-text">{{product.description}}</p>
+                        <a href="#" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+            }
+            }
+        </div>
+    </div>
+
+</main>
+<router-outlet />

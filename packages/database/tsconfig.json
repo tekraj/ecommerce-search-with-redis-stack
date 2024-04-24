@@ -1,0 +1,12 @@
+{
+  "extends": "@ecommerce/config-typescript/base.json",
+  "include": ["."],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"]
+    },
+    "outDir": "./dist"
+  },
+  "exclude": ["node_modules"]
+}

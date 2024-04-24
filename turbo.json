@@ -1,0 +1,30 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [".env"],
+  "globalDotEnv": [".env"],
+  "globalEnv": ["REDIS_URL", "REDIS_PORT", "REDIS_PASSWORD", "DATABASE_URL"],
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+    },
+    "db:migrate:deploy": {},
+    "db:push": {},
+    "db:seed": {},
+    "db:generate": {},
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "dotEnv": [
+        ".env.development.local",
+        ".env.local",
+        ".env.development",
+        ".env"
+      ]
+    },
+    "generate": {
+      "dependsOn": ["^generate"]
+    },
+    "lint": {}
+  }
+}

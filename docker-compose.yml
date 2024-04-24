@@ -2,62 +2,62 @@ version: '3.8'
 
 services:
   # redis service
-  redis:
-      image: redis/redis-stack-server:latest
-      container_name: redis_stack
-      privileged: true
-      command:
-        [
-          'redis-server',
-          '--bind',
-          'redis-stack',
-          '--port',
-          '6379',
-          '--databases',
-          '1600',
-          '--requirepass',
-          'password123',
-          '--loadmodule',
-          '/opt/redis-stack/lib/redisearch.so',
-          '--loadmodule',
-          '/opt/redis-stack/lib/rejson.so',
-        ]
-      volumes:
-        - redis-data:/data
-      ports:
-        - 6379:6379
-      networks:
-        - ecommerce
+  ecommerce-redis:
+    image: redis/redis-stack-server:latest
+    container_name: ecommerce_redis
+    privileged: false
+    command:
+      [
+        'redis-server',
+        '--bind',
+        'redis-stack',
+        '--port',
+        '6379',
+        '--databases',
+        '1600',
+        '--loadmodule',
+        '/opt/redis-stack/lib/redisearch.so',
+        '--loadmodule',
+        '/opt/redis-stack/lib/rejson.so',
+      ]
+    volumes:
+      - redis_data:/data
+    ports:
+      - 6377:6379
+    networks:
+      - ecommerce
   # mysql database
-  db:
-    image: mysql:8.0
+  ecommerce-mysql:
+    image: mariadb
+    container_name: ecommerce_mysql
+    restart: always
     cap_add: # suppresses  not useful error messages.
       - SYS_NICE
-    restart: always
     environment:
-      - MYSQL_DATABASE=ecommerce
-      - MYSQL_ROOT_PASSWORD=dDXU123456
+      MYSQL_ROOT_PASSWORD: vfgetew2234*Wew
+      MYSQL_DATABASE: ecommerce
+      MYSQL_USER: ecommerce
+      MYSQL_PASSWORD: xyz344324wW
     ports:
-      - '3306:3306'
+      - '3307:3306'
     volumes:
       - db_data:/var/lib/mysql
-      - db_data:/docker-entrypoint-initdb.d/init.sql
     networks:
       - ecommerce
   # nodejs server
-  server:
-    container_name: server
-    image: server:1.0.0
-    ports:
-      - 4000:4000
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    networks:
-      - ecommerce
-    env_file:
-      - .env
-    restart: unless-stopped
+  # server:
+  #   container_name: server
+  #   image: server:1.0.0
+  #   ports:
+  #     - 4000:4000
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile
+  #   networks:
+  #     - ecommerce
+  #   env_file:
+  #     - .env
+  #   restart: unless-stopped
 
 networks:
   ecommerce:
@@ -68,10 +68,10 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ./data/redis-data
+      device: ./data/redis
   db_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ./data/db-data
+      device: ./data/mysql

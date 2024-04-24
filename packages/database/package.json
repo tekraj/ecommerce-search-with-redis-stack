@@ -1,0 +1,32 @@
+{
+  "name": "@ecommerce/database",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "main": "./dist/index.js",
+  "types": "./src/index.ts",
+  "scripts": {
+    "prebuild": "npm run generate",
+    "build": "esbuild src/index.ts --bundle --packages=external --platform=node --format=cjs --outdir=dist --sourcemap",
+    "db:generate": "npx prisma generate",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:migrate:dev": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:seed": "tsx src/seed.ts",
+    "format": "prisma format",
+    "lint": "eslint . --max-warnings 0",
+    "predev": "npm run generate",
+    "studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.12.1"
+  },
+  "devDependencies": {
+    "@ecommerce/config-eslint": "1.0.0",
+    "@ecommerce/config-typescript": "1.0.0",
+    "eslint": "^8.57.0",
+    "prisma": "^5.10.2",
+    "rimraf": "^5.0.5",
+    "tsx": "^4.7.1",
+    "typescript": "^5.2.2"
+  }
+}

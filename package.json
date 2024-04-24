@@ -1,0 +1,48 @@
+{
+  "name": "root",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": " pnpm build:packages && pnpm build:apps ",
+    "build:apps": "pnpm with-env turbo run build --filter=!database --parallel",
+    "build:packages": "pnpm with-env turbo build --filter=database --parallel",
+    "db:generate": "turbo run db:generate",
+    "db:migrate:deploy": "turbo run db:migrate:deploy",
+    "db:push": "turbo run db:push",
+    "db:seed": "turbo run db:seed",
+    "dev": "pnpm with-env turbo run dev --parallel",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "generate": "turbo run generate",
+    "preinstall": "npx only-allow pnpm",
+    "postinstall": "manypkg check",
+    "lint": "turbo run lint",
+    "with-env": "dotenv -e ./.env --"
+  },
+  "prettier": "@ecommerce/prettier-config",
+  "dependencies": {
+    "@ecommerce/config-eslint": "1.0.0",
+    "@ecommerce/prettier-config": "1.0.0",
+    "@manypkg/cli": "latest",
+    "dotenv": "^16.4.5",
+    "dotenv-cli": "latest",
+    "esbuild": "^0.20.1",
+    "eslint": "^8.57.0",
+    "execa": "^8.0.1",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5",
+    "turbo": "^1.13.2",
+    "typescript": "^5.2.2"
+  },
+  "packageManager": "pnpm@8.4.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "prisma": {
+    "schema": "packages/database/prisma/schema.prisma",
+    "seed": "tsx packages/database/src/seed.ts"
+  }
+}
