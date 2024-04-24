@@ -1,4 +1,5 @@
 import cors from 'cors';
+import 'dotenv/config';
 import type { Application } from 'express';
 import express from 'express';
 import path from 'node:path';

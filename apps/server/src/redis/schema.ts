@@ -5,6 +5,7 @@ import { redisClient } from './redis';
 export async function createRedisProductSchema() {
   const redis = await redisClient();
   try {
+    // await redis.FLUSHALL();
     await redis.ft.CREATE(
       `idx:products`,
       {
@@ -31,10 +32,6 @@ export async function createRedisProductSchema() {
     );
     return true;
   } catch (e) {
-    const error = e as { message: string } | undefined;
-    if (error?.message === 'Index already exists') {
-      return true;
-    }
     return false;
   }
 }

@@ -4,17 +4,19 @@ services:
   # redis service
   ecommerce-redis:
     image: redis/redis-stack-server:latest
-    container_name: ecommerce_redis
-    privileged: false
+    container_name: ecomerce_redis_stack
+    privileged: true
     command:
       [
         'redis-server',
         '--bind',
-        'redis-stack',
+        'ecommerce-redis',
         '--port',
         '6379',
         '--databases',
         '1600',
+        '--requirepass',
+        'ecommerce',
         '--loadmodule',
         '/opt/redis-stack/lib/redisearch.so',
         '--loadmodule',
@@ -22,10 +24,10 @@ services:
       ]
     volumes:
       - redis_data:/data
-    ports:
-      - 6377:6379
     networks:
       - ecommerce
+    ports:
+      - 6379:6379
   # mysql database
   ecommerce-mysql:
     image: mariadb
