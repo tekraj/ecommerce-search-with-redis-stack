@@ -1,24 +1,4 @@
 {
-  "extends": "@ecommerce/config-typescript/base.json",
-  "compilerOptions": {
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "inlineSources": false,
-    "isolatedModules": true,
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "noEmit": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "preserveWatchOutput": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "strictNullChecks": true,
-    "target": "ESNext",
-    "outDir": "./dist",
-    "allowJs": true,
-  },
-  "exclude": ["./node_modules", "dist"],
-  "include": ["./src/",".eslintrc.cjs","typings"]
+  "extends": "@ecommerce/typescript-config/base.json",
+  "include": [".", "./package.json"]
 }

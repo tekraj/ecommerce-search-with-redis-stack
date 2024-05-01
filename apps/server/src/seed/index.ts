@@ -1,14 +1,18 @@
-import fs from "node:fs";
-import { CategoryService } from "../services/category-service";
-import slug from "slug";
-import csv from "csv-parser";
-import path from "node:path";
-import type { Prisma } from "@ecommerce/database";
-import { ProductService } from "../services/product-service";
+/* eslint-disable no-await-in-loop -- using promise/ will have issue with memory so use for loop */
+import csv from 'csv-parser';
+import fs from 'node:fs';
+import path from 'node:path';
+import slug from 'slug';
+
+import type { Prisma } from '@ecommerce/database';
+
+import { CategoryService } from '../services/category-service';
+import { ProductService } from '../services/product-service';
+
 const categoryService = new CategoryService();
 const productService = new ProductService();
 
-interface CSVFormat {
+type CSVFormat = {
   name: string;
   main_category: string;
   sub_category: string;
@@ -18,32 +22,32 @@ interface CSVFormat {
   no_of_ratings: number;
   discount_price: number;
   actual_price: string;
-}
-const dataDir = "./data";
+};
+const dataDir = './data';
 export const readProductCSV = async (
   filePath: string,
-  categoryId: number
+  categoryId: number,
 ): Promise<Prisma.ProductCreateInput[]> => {
   const csvData: Prisma.ProductCreateInput[] = [];
   await new Promise((resolve, reject) => {
     fs.createReadStream(filePath)
       .pipe(csv())
-      .on("data", (data: CSVFormat) => {
+      .on('data', (data: CSVFormat) => {
         if (data.name) {
           csvData.push({
             name: data.name,
             description: data.name,
-            price: Number(data.actual_price.replace(/\D/g, "")),
+            price: Number(data.actual_price.replace(/\D/g, '')),
             url: slug(data.name),
             category: { connect: { id: categoryId } },
             quantity: 1000,
           });
         }
       })
-      .on("end", () => {
+      .on('end', () => {
         resolve(filePath);
       })
-      .on("error", (error: any) => {
+      .on('error', (error) => {
         reject(error);
       });
   });
@@ -54,20 +58,20 @@ export const seedCategoryProducts = async () => {
   const categories = fs.readdirSync(dataDir);
 
   const allSavedCategories = await Promise.all(
-    categories.map(async (category, i) => {
+    categories.map(async (category) => {
       return categoryService.upsert({
-        name: category.replace(".csv", ""),
-        url: slug(category.replace(".csv", "")),
+        name: category.replace('.csv', ''),
+        url: slug(category.replace('.csv', '')),
       });
-    })
+    }),
   );
 
-  // using promise/ will have issue with memory so use for loop
+  //
   for (const category of allSavedCategories) {
     if (!category) continue;
     const products = await readProductCSV(
       path.join(dataDir, `${category.name}.csv`),
-      category.id
+      category.id,
     );
     for (const product of products) {
       await productService.upsert(product);

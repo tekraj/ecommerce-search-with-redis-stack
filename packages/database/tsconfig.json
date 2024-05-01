@@ -1,5 +1,5 @@
 {
-  "extends": "@ecommerce/config-typescript/base.json",
+  "extends": "@ecommerce/typescript-config/base.json",
   "include": ["."],
   "compilerOptions": {
     "baseUrl": ".",

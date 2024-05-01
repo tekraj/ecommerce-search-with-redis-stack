@@ -13,17 +13,21 @@
     "db:push": "prisma db push",
     "db:seed": "tsx src/seed.ts",
     "format": "prisma format",
-    "lint": "eslint . --max-warnings 0",
+    "lint": "eslint . --ext .ts,.tsx --fix",
     "predev": "npm run generate",
     "studio": "prisma studio"
+  },
+  "eslintConfig": {
+    "extends": [
+      "@ecommerce/eslint-config/node"
+    ]
   },
   "dependencies": {
     "@prisma/client": "^5.12.1"
   },
   "devDependencies": {
-    "@ecommerce/config-eslint": "1.0.0",
-    "@ecommerce/config-typescript": "1.0.0",
-    "eslint": "^8.57.0",
+    "@ecommerce/eslint-config": "1.0.0",
+    "@ecommerce/typescript-config": "1.0.0",
     "prisma": "^5.10.2",
     "rimraf": "^5.0.5",
     "tsx": "^4.7.1",

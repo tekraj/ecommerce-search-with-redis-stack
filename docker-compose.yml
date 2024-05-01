@@ -46,6 +46,19 @@ services:
       - db_data:/var/lib/mysql
     networks:
       - ecommerce
+  # elastic search
+  ecommerce-elasticsearch:
+    image: elasticsearch:8.8.0
+    container_name: ecommerce_elasticsearch
+    ports:
+      - 9300:9300
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    volumes:
+      - elastic_search:/usr/share/elasticsearch/data
+    networks:
+      - ecommerce
   # nodejs server
   # server:
   #   container_name: server
@@ -77,3 +90,9 @@ volumes:
       type: none
       o: bind
       device: ./data/mysql
+  elastic_search:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/elastic-search

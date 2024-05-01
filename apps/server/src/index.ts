@@ -5,10 +5,12 @@ import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { createProductElasticIndex } from './elastic-search/schema';
+import { syncProductsWithElasticSearch } from './elastic-search/sync-db-elastic';
 import { env } from './env.mjs';
 import { createRedisProductSchema } from './redis/schema';
 import { syncProductsWithRedis } from './redis/sync-db-redis';
-import router from './routes/router';
+import { router } from './routes/router';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -24,6 +26,10 @@ export const bootstrap = async () => {
   const productSchema = await createRedisProductSchema();
   if (productSchema) {
     await syncProductsWithRedis();
+  }
+  const productElasticSearchSchema = await createProductElasticIndex();
+  if (productElasticSearchSchema) {
+    await syncProductsWithElasticSearch();
   }
   app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

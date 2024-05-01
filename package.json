@@ -9,6 +9,9 @@
     "build": " pnpm build:packages && pnpm build:apps ",
     "build:apps": "pnpm with-env turbo run build --filter=!database --parallel",
     "build:packages": "pnpm with-env turbo build --filter=database --parallel",
+    "clean": "git clean -xdf node_modules",
+    "clean:all": "pnpm clean:workspaces && pnpm clean && pnpm install && pnpm build:packages && pnpm install",
+    "clean:workspaces": "turbo clean",
     "db:generate": "turbo run db:generate",
     "db:migrate:deploy": "turbo run db:migrate:deploy",
     "db:push": "turbo run db:push",
@@ -18,12 +21,21 @@
     "generate": "turbo run generate",
     "preinstall": "npx only-allow pnpm",
     "postinstall": "manypkg check",
-    "lint": "turbo run lint",
+    "lint": "turbo lint",
+    "lint:fix": "turbo lint -- --fix",
     "with-env": "dotenv -e ./.env --"
+  },
+  "lint-staged": {
+    "(apps|packages)/**/*.{js,ts,jsx,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.json": [
+      "prettier --write"
+    ]
   },
   "prettier": "@ecommerce/prettier-config",
   "dependencies": {
-    "@ecommerce/config-eslint": "1.0.0",
     "@ecommerce/prettier-config": "1.0.0",
     "@manypkg/cli": "latest",
     "dotenv": "^16.4.5",
@@ -37,7 +49,7 @@
     "turbo": "^1.13.2",
     "typescript": "^5.2.2"
   },
-  "packageManager": "pnpm@8.4.0",
+  "packageManager": "pnpm@9.0.6",
   "engines": {
     "node": ">=18"
   },

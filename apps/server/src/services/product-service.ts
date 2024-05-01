@@ -30,13 +30,13 @@ export class ProductService {
   }
 
   async insertBatch(
-    data: Array<Omit<Product, 'id' | 'createdAt' | 'updatedAt'>>,
+    data: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>[],
   ): Promise<Prisma.BatchPayload | null> {
     try {
       const createdProducts = await prisma.product.createMany({ data });
       return createdProducts;
     } catch (error) {
-      console.error('Error inserting products:', error);
+      console.log('Error inserting products:', error);
       return null;
     }
   }
@@ -69,7 +69,10 @@ export class ProductService {
   async search(searchQuery: string) {
     try {
       return prisma.product.findMany({
-        where: { name: { contains: searchQuery } },
+        where: {
+          name: { search: searchQuery },
+          description: { search: searchQuery },
+        },
         take: 20,
       });
     } catch (e) {
