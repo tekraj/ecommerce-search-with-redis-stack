@@ -23,6 +23,7 @@ model Category {
   products  Product[]
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
+   @@fulltext([name])
 }
 
 model Product {
@@ -32,11 +33,13 @@ model Product {
   description  String
   price        Float
   quantity     Int
+  discount     Float @default(0)
   category     Category    @relation(fields: [categoryId], references: [id])
   categoryId   Int
   images       ProductImage[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime     @default(now())
+  @@fulltext([name, description])
 }
 
 model ProductImage {

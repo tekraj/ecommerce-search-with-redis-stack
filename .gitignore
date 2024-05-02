@@ -35,6 +35,7 @@ typings
 Thumbs.db
 data/mysql
 data/redis
+data/elastic-search
 .env
 
 .angular
