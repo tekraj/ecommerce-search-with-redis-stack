@@ -1,8 +1,11 @@
-.product-search-results {
-  position: absolute;
-  top: 33px;
-  max-width: 100%;
-  a {
-    text-wrap: balance;
+.search-input-group {
+  position: relative;
+  .product-search-results {
+    position: absolute;
+    top: 33px;
+    max-width: 100%;
+    a {
+      text-wrap: balance;
+    }
   }
 }

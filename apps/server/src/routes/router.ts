@@ -44,6 +44,31 @@ router.get(
   }),
 );
 router.get(
+  '/products/search-elastic/:query',
+  asyncHandler(async (req: Request, response: Response) => {
+    const searchQuery = req.params.query;
+    if (!searchQuery) {
+      response.send([]);
+    } else {
+      const products =
+        await productService.searchWithElasticSearch(searchQuery);
+      response.send(products);
+    }
+  }),
+);
+router.get(
+  '/products/search-redis/:query',
+  asyncHandler(async (req: Request, response: Response) => {
+    const searchQuery = req.params.query;
+    if (!searchQuery) {
+      response.send([]);
+    } else {
+      const products = await productService.searchWithRedisStack(searchQuery);
+      response.send(products);
+    }
+  }),
+);
+router.get(
   '/products/:page/:pageSize',
   asyncHandler(async (req: Request, response: Response) => {
     const page = Number(req.params.page);

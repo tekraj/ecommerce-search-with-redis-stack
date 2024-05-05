@@ -22,21 +22,14 @@ export class AppComponent implements OnInit {
   pageSize = 50;
   searchForm = new FormGroup({
     searchQuery: new FormControl(''),
+    elasticSearchQuery: new FormControl(''),
+    redisSearchQuery: new FormControl(''),
   });
   products$?: Observable<Product[]>;
   searchResults$?: Observable<Product[]>;
-  constructor(private productService: ProductService) {
-    this.searchForm
-      .get('searchQuery')
-      ?.valueChanges.pipe(debounceTime(300))
-      .subscribe((value) => {
-        if (value) {
-          this.searchResults$ = this.productService.searchProducts(value);
-        } else {
-          this.searchResults$ = undefined;
-        }
-      });
-  }
+  elasticSearchResults$?: Observable<Product[]>;
+  redisSearchResults$?: Observable<Product[]>;
+  constructor(private productService: ProductService) {}
   ngOnInit() {
     this.listProducts();
   }
@@ -46,5 +39,33 @@ export class AppComponent implements OnInit {
 
   getImage(url: string) {
     return `${REST_API_URL}/images/${url}`;
+  }
+  search(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const value = target.value;
+    if (value) {
+      this.searchResults$ = this.productService.searchProducts(value);
+    } else {
+      this.searchResults$ = undefined;
+    }
+  }
+  elasticSearch(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const value = target.value;
+    if (value) {
+      this.elasticSearchResults$ =
+        this.productService.elasticSearchProducts(value);
+    } else {
+      this.elasticSearchResults$ = undefined;
+    }
+  }
+  redisSearch(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const value = target.value;
+    if (value) {
+      this.redisSearchResults$ = this.productService.redisSearchProducts(value);
+    } else {
+      this.redisSearchResults$ = undefined;
+    }
   }
 }

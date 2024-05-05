@@ -34,6 +34,7 @@ model Product {
   price        Float
   quantity     Int
   discount     Float @default(0)
+  tags         String?
   category     Category    @relation(fields: [categoryId], references: [id])
   categoryId   Int
   images       ProductImage[]

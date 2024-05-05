@@ -23,14 +23,14 @@ const port: string | number = env.PORT;
 app.use(express.json());
 app.use(router);
 export const bootstrap = async () => {
-  const productSchema = await createRedisProductSchema();
-  if (productSchema) {
-    await syncProductsWithRedis();
-  }
-  const productElasticSearchSchema = await createProductElasticIndex();
-  if (productElasticSearchSchema) {
-    await syncProductsWithElasticSearch();
-  }
+  // const productSchema = await createRedisProductSchema();
+  // if (productSchema) {
+  //   await syncProductsWithRedis();
+  // }
+  // const productElasticSearchSchema = await createProductElasticIndex();
+  // if (productElasticSearchSchema) {
+  //   await syncProductsWithElasticSearch();
+  // }
   app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
   });

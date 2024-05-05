@@ -2,12 +2,13 @@ import { SchemaFieldTypes } from 'redis';
 
 import { redisClient } from './redis';
 
+export const redisProductSchema = 'products';
 export async function createRedisProductSchema() {
   const redis = await redisClient();
   try {
-    // await redis.FLUSHALL();
+    await redis.FLUSHALL();
     await redis.ft.CREATE(
-      `idx:products`,
+      `idx:${redisProductSchema}`,
       {
         '$.id': {
           type: SchemaFieldTypes.NUMERIC,

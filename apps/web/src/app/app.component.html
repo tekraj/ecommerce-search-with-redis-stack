@@ -5,16 +5,40 @@
                 <a class="navbar-brand" href="#">Brand</a>
             </div>
             <div class="col-sm-6">
-                <form class="d-flex input-group w-auto " [formGroup]="searchForm">
-                    <input type="search" class="form-control w-full" name="text" placeholder="Search Products"
-                        aria-label="Search" formControlName="searchQuery" />
-                    @if (searchResults$ | async; as searchResults) {
-                    <div class="dropdown-menu product-search-results" aria-labelledby="searchDropdown">
-                        @for (product of searchResults; track product.id) {
-                        <a class="dropdown-item" href="#">{{ product.name }}</a>
+                <form [formGroup]="searchForm">
+                    <div class="d-flex input-group w-auto mb-3 search-input-group">
+                        <input type="search" class="form-control w-full" name="text" placeholder="Search Products"
+                            aria-label="Search" formControlName="searchQuery" (input)="search($event)" />
+                        @if (searchResults$ | async; as searchResults) {
+                        <div class="dropdown-menu product-search-results" aria-labelledby="searchDropdown">
+                            @for (product of searchResults; track product.id) {
+                            <a class="dropdown-item" href="#">{{ product.name }}</a>
+                            }
+                        </div>
                         }
                     </div>
-                    }
+                    <div class="d-flex input-group w-auto mb-3 search-input-group">
+                        <input type="search" class="form-control w-full" name="text" placeholder="Elastic Search"
+                            aria-label="Search" formControlName="elasticSearchQuery" (input)="elasticSearch($event)" />
+                        @if (elasticSearchResults$ | async; as elasticSearchResults) {
+                        <div class="dropdown-menu product-search-results" aria-labelledby="searchDropdown">
+                            @for (product of elasticSearchResults; track product.id) {
+                            <a class="dropdown-item" href="#">{{ product.name }}</a>
+                            }
+                        </div>
+                        }
+                    </div>
+                    <div class="d-flex input-group w-auto mb-3 search-input-group">
+                        <input type="search" class="form-control w-full" name="text" placeholder="Redis Search"
+                            aria-label="Search" formControlName="redisSearchQuery" (input)="redisSearch($event)" />
+                        @if (redisSearchResults$ | async; as redisSearchResults) {
+                        <div class="dropdown-menu product-search-results" aria-labelledby="searchDropdown">
+                            @for (product of redisSearchResults; track product.id) {
+                            <a class="dropdown-item" href="#">{{ product.name }}</a>
+                            }
+                        </div>
+                        }
+                    </div>
                 </form>
             </div>
             <div class="col-sm-4 ">

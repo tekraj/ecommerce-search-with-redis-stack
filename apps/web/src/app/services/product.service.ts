@@ -19,4 +19,14 @@ export class ProductService {
   searchProducts(text: string): Observable<Product[]> {
     return this.http.get<Product[]>(`${REST_API_URL}/products/search/${text}`);
   }
+  elasticSearchProducts(text: string): Observable<Product[]> {
+    return this.http.get<Product[]>(
+      `${REST_API_URL}/products/search-elastic/${text}`,
+    );
+  }
+  redisSearchProducts(text: string): Observable<Product[]> {
+    return this.http.get<Product[]>(
+      `${REST_API_URL}/products/search-redis/${text}`,
+    );
+  }
 }
