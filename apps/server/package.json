@@ -8,10 +8,12 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "build": "npx tsc",
+    "build": "esbuild src/index.ts --bundle --packages=external --platform=node --format=esm --outdir=dist --sourcemap",
     "dev": "tsx watch src/index.ts",
     "lint": "eslint . --ext .ts --fix",
-    "seed": "tsx src/seed/index.ts",
+    "seed": "npx tsx src/seed/index.ts",
+    "sync:elasticsearch": "npx tsx src/elastic-search/sync.ts",
+    "sync:redis": "npx tsx src/redis/sync.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "eslintConfig": {

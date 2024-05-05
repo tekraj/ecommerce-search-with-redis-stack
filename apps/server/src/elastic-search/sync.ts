@@ -34,3 +34,5 @@ export const syncProductsWithElasticSearch = async () => {
     console.log(e);
   }
 };
+
+void syncProductsWithElasticSearch();

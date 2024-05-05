@@ -11,6 +11,8 @@
     "db:migrate:deploy": {},
     "db:push": {},
     "db:seed": {},
+    "sync:elasticsearch": {},
+    "sync:redis": {},
     "db:generate": {},
     "dev": {
       "cache": false,

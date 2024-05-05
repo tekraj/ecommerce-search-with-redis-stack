@@ -24,6 +24,8 @@
     "postinstall": "manypkg check",
     "lint": "turbo lint",
     "lint:fix": "turbo lint -- --fix",
+    "sync:elasticsearch": "pnpm with-env turbo run sync:elasticsearch",
+    "sync:redis": "pnpm with-env turbo run sync:redis",
     "with-env": "dotenv -e ./.env --"
   },
   "lint-staged": {

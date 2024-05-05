@@ -1,9 +1,11 @@
 import { prisma } from '@ecommerce/database';
 
 import { redisClient } from './redis';
+import { createRedisProductSchema } from './schema';
 
-export const syncProductsWithRedis = async () => {
+const syncProductsWithRedis = async () => {
   const redis = await redisClient();
+  await createRedisProductSchema();
   const products = await prisma.product.findMany({
     include: { category: true },
   });
@@ -23,3 +25,5 @@ export const syncProductsWithRedis = async () => {
     `Total Products = ${products.length}\n total synced=${totalSyncedData.length}`,
   );
 };
+
+void syncProductsWithRedis();

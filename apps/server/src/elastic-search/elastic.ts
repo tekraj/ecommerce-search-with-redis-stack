@@ -15,6 +15,12 @@ export const searchProperty: MappingProperty = {
   search_analyzer: 'standard',
 };
 export const productIndexName = 'products';
+export type ElasticProduct = {
+  name: string;
+  id: number;
+  description: string;
+  category: string;
+};
 export const createElasticIndex = async (
   indexName: string,
   settings: Record<PropertyName, MappingProperty>,
