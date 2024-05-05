@@ -33,11 +33,11 @@ typings
 # System files
 .DS_Store
 Thumbs.db
-data/mysql
-data/redis
-data/elastic-search
+data/mysql/
+data/redis/
+data/elastic-search/
 .env
 
 .angular
-data/csv
+data/csv/
 .turbo
