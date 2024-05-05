@@ -6,9 +6,9 @@
     "packages/*"
   ],
   "scripts": {
-    "build": " pnpm build:packages && pnpm build:apps ",
+    "build": "pnpm  build:packages && pnpm build:apps ",
     "build:apps": "pnpm with-env turbo run build --filter=!database --parallel",
-    "build:packages": "pnpm with-env turbo build --filter=database --parallel",
+    "build:packages": "pnpm db:generate && pnpm  with-env turbo build --filter=database --parallel",
     "clean": "git clean -xdf node_modules",
     "clean:all": "pnpm clean:workspaces && pnpm clean && pnpm install && pnpm build:packages && pnpm install",
     "clean:workspaces": "turbo clean",

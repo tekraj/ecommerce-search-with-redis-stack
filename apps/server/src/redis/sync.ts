@@ -3,7 +3,7 @@ import { prisma } from '@ecommerce/database';
 import { redisClient } from './redis';
 import { createRedisProductSchema } from './schema';
 
-const syncProductsWithRedis = async () => {
+export const syncProductsWithRedis = async () => {
   const redis = await redisClient();
   await createRedisProductSchema();
   const products = await prisma.product.findMany({
@@ -12,12 +12,18 @@ const syncProductsWithRedis = async () => {
   const totalSyncedData = (
     await Promise.allSettled(
       products.map(async (product) => {
-        return redis.json.set(`product:${product.id}`, '$', {
-          name: product.name,
-          description: product.description,
-          id: product.id,
-          category: product.category.name,
-        });
+        try {
+          return redis.json.set(`product:${product.id}`, '$', {
+            name: product.name,
+            description: product.description,
+            id: product.id,
+            category: product.category.name,
+            tags: product.tags,
+          });
+        } catch (e) {
+          console.log(e);
+          process.exit(0);
+        }
       }),
     )
   ).filter((p) => p.status === 'fulfilled' && p.value);

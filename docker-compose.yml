@@ -71,6 +71,10 @@ services:
       dockerfile: ./Dockerfile
     networks:
       - ecommerce
+    depends_on:
+      - ecommerce-redis
+      - ecommerce-mysql
+      - ecommerce-elasticsearch
     env_file:
       - .env
     restart: unless-stopped

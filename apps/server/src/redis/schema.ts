@@ -25,6 +25,11 @@ export async function createRedisProductSchema() {
           SORTABLE: true,
           AS: 'description',
         },
+        '$.tags': {
+          type: SchemaFieldTypes.TEXT,
+          SORTABLE: true,
+          AS: 'tags',
+        },
         '$.category': {
           type: SchemaFieldTypes.TEXT,
           SORTABLE: true,
