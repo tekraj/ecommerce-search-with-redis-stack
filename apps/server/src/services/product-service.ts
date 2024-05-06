@@ -1,5 +1,9 @@
+import stopwords from 'natural';
+
 import type { Product, Prisma } from '@ecommerce/database';
 import { prisma } from '@ecommerce/database';
+
+import { matchMostSimilarQuery } from '~/nlp/match-similar-word';
 
 import { esClient, productIndexName } from '../elastic-search/elastic';
 import { redisClient } from '../redis/redis';
@@ -72,12 +76,16 @@ export class ProductService {
 
   async search(searchQuery: string) {
     try {
-      return prisma.$queryRaw`
+      const products: Product[] = await prisma.$queryRaw`
       SELECT *
       FROM Product
       WHERE MATCH(name, description) AGAINST (${searchQuery} IN NATURAL LANGUAGE MODE)
       order by id desc LIMIT 20 ;
     `;
+      return products
+        .flatMap((p) => p.tags?.split(','))
+        .filter((p) => p)
+        .slice(0, 20);
     } catch (e) {
       return null;
     }
@@ -88,11 +96,11 @@ export class ProductService {
       const results = await esClient.search({
         index: productIndexName,
         body: {
-          size: 20, // Return only the first 20 results
+          size: 100, // Return only the first 100 results
           query: {
             multi_match: {
               query: searchQuery,
-              fields: ['name^3', 'description', 'category^5'],
+              fields: ['name^3', 'description', 'tags'],
               type: 'best_fields',
               fuzziness: 'AUTO',
               operator: 'AND',
@@ -103,15 +111,19 @@ export class ProductService {
           },
         },
       });
-      return results.hits.hits
+      const tags = results.hits.hits
         .map((h) => {
           return h._source
             ? {
-                ...h._source,
+                ...(h._source as Product),
               }
             : null;
         })
-        .filter((h) => h);
+        .filter((h) => h)
+        .flatMap((p) => p?.tags?.split(','))
+        .filter((p) => p) as string[];
+      const mostSimilarTags = matchMostSimilarQuery(tags, searchQuery);
+      return mostSimilarTags.splice(0, 20);
     } catch (e) {
       console.log(e);
       return null;
@@ -119,10 +131,12 @@ export class ProductService {
   }
   async searchWithRedisStack(searchQuery: string) {
     try {
+      console.log(stopwords.stopwords);
       const client = await redisClient();
       const spellingFixedQuery = (
         await Promise.all(
           searchQuery.split(' ').map(async (word) => {
+            if (stopwords.stopwords.includes(word.toLowerCase())) return;
             const checkSpelling = await client.ft.spellCheck(
               `idx:${redisProductSchema}`,
               word,
@@ -130,23 +144,26 @@ export class ProductService {
             return checkSpelling[0]?.suggestions[0]?.suggestion ?? word;
           }),
         )
-      )
-        .map((w) => w)
-        .join(' ');
+      ).filter((w) => w);
       const results = await client.ft.search(
         `idx:${redisProductSchema}`,
-        `@name:(${spellingFixedQuery}) | @description:(${spellingFixedQuery}) | @category:(${spellingFixedQuery})`,
+        `@name:(${spellingFixedQuery.join(' ')}) | @description:(${spellingFixedQuery.join(' ')}) `,
         {
           LIMIT: {
             from: 0,
-            size: 20,
+            size: 100,
           },
           SCORER: 'BM25',
         },
       );
-      return results.documents.map((d) => ({
-        ...d.value,
-      }));
+      const tags = results.documents
+        .map((d) => ({
+          ...(d.value as unknown as Product),
+        }))
+        .flatMap((p) => p.tags?.split(','))
+        .filter((p) => p) as string[];
+      const mostSimilarTags = matchMostSimilarQuery(tags, searchQuery);
+      return mostSimilarTags.splice(0, 20);
     } catch (e) {
       console.log(e);
       return null;

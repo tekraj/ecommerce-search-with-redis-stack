@@ -16,16 +16,16 @@ export class ProductService {
       `${REST_API_URL}/products/${page}/${pageSize}`,
     );
   }
-  searchProducts(text: string): Observable<Product[]> {
-    return this.http.get<Product[]>(`${REST_API_URL}/products/search/${text}`);
+  searchProducts(text: string): Observable<string[]> {
+    return this.http.get<string[]>(`${REST_API_URL}/products/search/${text}`);
   }
-  elasticSearchProducts(text: string): Observable<Product[]> {
-    return this.http.get<Product[]>(
+  elasticSearchProducts(text: string): Observable<string[]> {
+    return this.http.get<string[]>(
       `${REST_API_URL}/products/search-elastic/${text}`,
     );
   }
-  redisSearchProducts(text: string): Observable<Product[]> {
-    return this.http.get<Product[]>(
+  redisSearchProducts(text: string): Observable<string[]> {
+    return this.http.get<string[]>(
       `${REST_API_URL}/products/search-redis/${text}`,
     );
   }

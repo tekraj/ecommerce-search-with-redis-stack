@@ -26,9 +26,9 @@ export class AppComponent implements OnInit {
     redisSearchQuery: new FormControl(''),
   });
   products$?: Observable<Product[]>;
-  searchResults$?: Observable<Product[]>;
-  elasticSearchResults$?: Observable<Product[]>;
-  redisSearchResults$?: Observable<Product[]>;
+  searchResults$?: Observable<string[]>;
+  elasticSearchResults$?: Observable<string[]>;
+  redisSearchResults$?: Observable<string[]>;
   constructor(private productService: ProductService) {}
   ngOnInit() {
     this.listProducts();

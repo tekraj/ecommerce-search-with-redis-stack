@@ -11,8 +11,8 @@
                             aria-label="Search" formControlName="searchQuery" (input)="search($event)" />
                         @if (searchResults$ | async; as searchResults) {
                         <div class="dropdown-menu product-search-results" aria-labelledby="searchDropdown">
-                            @for (product of searchResults; track product.id) {
-                            <a class="dropdown-item" href="#">{{ product.name }}</a>
+                            @for (product of searchResults; track product) {
+                            <a class="dropdown-item" href="#">{{ product }}</a>
                             }
                         </div>
                         }
@@ -22,8 +22,8 @@
                             aria-label="Search" formControlName="elasticSearchQuery" (input)="elasticSearch($event)" />
                         @if (elasticSearchResults$ | async; as elasticSearchResults) {
                         <div class="dropdown-menu product-search-results" aria-labelledby="searchDropdown">
-                            @for (product of elasticSearchResults; track product.id) {
-                            <a class="dropdown-item" href="#">{{ product.name }}</a>
+                            @for (product of elasticSearchResults; track product) {
+                            <a class="dropdown-item" href="#">{{ product }}</a>
                             }
                         </div>
                         }
@@ -33,8 +33,8 @@
                             aria-label="Search" formControlName="redisSearchQuery" (input)="redisSearch($event)" />
                         @if (redisSearchResults$ | async; as redisSearchResults) {
                         <div class="dropdown-menu product-search-results" aria-labelledby="searchDropdown">
-                            @for (product of redisSearchResults; track product.id) {
-                            <a class="dropdown-item" href="#">{{ product.name }}</a>
+                            @for (product of redisSearchResults; track product) {
+                            <a class="dropdown-item" href="#">{{ product }}</a>
                             }
                         </div>
                         }
