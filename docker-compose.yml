@@ -61,23 +61,23 @@ services:
     networks:
       - ecommerce
   # nodejs server
-  server:
-    container_name: server
-    image: server:1.0.0
-    ports:
-      - 5000:5000
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    networks:
-      - ecommerce
-    depends_on:
-      - ecommerce-redis
-      - ecommerce-mysql
-      - ecommerce-elasticsearch
-    env_file:
-      - .env
-    restart: unless-stopped
+  # server:
+  #   container_name: server
+  #   image: server:1.0.0
+  #   ports:
+  #     - 5000:5000
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile
+  #   networks:
+  #     - ecommerce
+  #   depends_on:
+  #     - ecommerce-redis
+  #     - ecommerce-mysql
+  #     - ecommerce-elasticsearch
+  #   env_file:
+  #     - .env
+  #   restart: unless-stopped
 
 networks:
   ecommerce:

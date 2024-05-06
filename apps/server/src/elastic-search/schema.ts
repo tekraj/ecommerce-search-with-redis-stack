@@ -11,6 +11,7 @@ export const createProductElasticIndex = async () => {
       name: searchProperty,
       description: searchProperty,
       category: searchProperty,
+      tags: searchProperty,
     });
     return true;
   } catch (e) {

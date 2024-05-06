@@ -30,6 +30,7 @@ export const syncProductsWithRedis = async () => {
   console.log(
     `Total Products = ${products.length}\n total synced=${totalSyncedData.length}`,
   );
+  process.exit(0);
 };
 
 void syncProductsWithRedis();
