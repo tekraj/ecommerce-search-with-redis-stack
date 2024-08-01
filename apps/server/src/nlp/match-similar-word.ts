@@ -1,5 +1,3 @@
-import natural from 'natural';
-
 export const tokenize = (text: string): string[] => {
   return text.toLowerCase().split(/\s+/);
 };

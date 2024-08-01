@@ -1,0 +1,12 @@
+{
+  "extends": "@ecommerce/typescript-config/react.json",
+  "include": [".", "./package.json"],
+  "compilerOptions": {
+    "jsx": "react",
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "baseUrl": ".",
+    "outDir": "./dist"
+  },
+  "exclude": ["node_modules"]
+}

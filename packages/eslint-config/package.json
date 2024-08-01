@@ -6,6 +6,7 @@
     "@typescript-eslint/parser": "^7.1.0",
     "@vercel/style-guide": "^5.2.0",
     "eslint-config-turbo": "^1.12.4",
+    "eslint-plugin-jsx-a11y": "^6.9.0",
     "typescript": "^5.2.2"
   }
 }

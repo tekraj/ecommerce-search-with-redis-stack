@@ -1,5 +1,3 @@
-import { off } from 'node:process';
-
 import { prisma } from '@ecommerce/database';
 
 import { esClient, productIndexName } from './elastic';
