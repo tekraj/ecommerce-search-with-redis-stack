@@ -8,6 +8,8 @@ import { fileURLToPath } from 'node:url';
 import { env } from './env.mjs';
 import { router } from './routes/router';
 
+declare let global: NodeJS.Global & typeof globalThis;
+
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 const app: Application = express();

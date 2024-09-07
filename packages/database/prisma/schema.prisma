@@ -3,7 +3,13 @@ generator client {
   previewFeatures = ["fullTextSearch","fullTextIndex"]
   binaryTargets = ["debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
 }
-
+generator zod {
+  provider       = "npx zod-prisma-types"
+  useMultipleFiles = false
+  output = "../src/validators"
+  createInputTypes = false
+  createPartialTypes = true
+}
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
@@ -15,6 +21,7 @@ model User {
   password    String
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @default(now())
+  productSearchHistories ProductSearchHistory[]
 }
 
 model Category {
@@ -52,4 +59,23 @@ model ProductImage {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @default(now())
 }
+enum DeviceType {
+  DESKTOP
+  MOBILE
+  TABLET
+  OTHER
+}
 
+model ProductSearchHistory {
+  id        Int      @id @default(autoincrement())
+  keyword   String  
+  userId    Int?     
+  ip        String   @db.VarChar(45) 
+  deviceType  DeviceType
+  location  String?
+  resultsCount  Int
+  newKeyword  Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}

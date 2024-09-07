@@ -1,5 +1,10 @@
 import type { Category, Prisma } from '@ecommerce/database';
-import { prisma } from '@ecommerce/database';
+import {
+  CategoryIdSchema,
+  CategoryPartialSchema,
+  CategorySchema,
+  prisma,
+} from '@ecommerce/database';
 
 export class CategoryService {
   async list(page = 1, limit = 10): Promise<Category[]> {
@@ -8,7 +13,12 @@ export class CategoryService {
 
   async create(data: Prisma.CategoryCreateInput): Promise<Category | null> {
     try {
-      return prisma.category.create({ data });
+      const result = CategorySchema.parse({
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      return prisma.category.create({ data: result });
     } catch (e) {
       return null;
     }
@@ -16,9 +26,14 @@ export class CategoryService {
 
   async upsert(data: Prisma.CategoryCreateInput): Promise<Category | null> {
     try {
+      const result = CategorySchema.parse({
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
       return prisma.category.upsert({
-        where: { url: data.url },
-        create: data,
+        where: { url: result.url },
+        create: result,
         update: { updatedAt: new Date() },
       });
     } catch (e) {
@@ -27,7 +42,8 @@ export class CategoryService {
   }
 
   async getById(id: number): Promise<Category | null> {
-    return prisma.category.findUnique({ where: { id } });
+    const { id: Id } = CategoryIdSchema.parse({ id });
+    return prisma.category.findUnique({ where: { id: Id } });
   }
 
   async update(
@@ -35,7 +51,11 @@ export class CategoryService {
     data: Prisma.CategoryUpdateInput,
   ): Promise<Category | null> {
     try {
-      await prisma.category.update({ where: { id }, data });
+      const result = CategoryPartialSchema.parse({
+        ...data,
+        updatedAt: new Date(),
+      });
+      await prisma.category.update({ where: { id }, data: result });
       return prisma.category.findUnique({ where: { id } });
     } catch (error) {
       return null;
@@ -44,7 +64,10 @@ export class CategoryService {
 
   async delete(id: number): Promise<Category | null> {
     try {
-      const deletedCategory = await prisma.category.delete({ where: { id } });
+      const { id: Id } = CategoryIdSchema.parse({ id });
+      const deletedCategory = await prisma.category.delete({
+        where: { id: Id },
+      });
       return deletedCategory;
     } catch (error) {
       return null;

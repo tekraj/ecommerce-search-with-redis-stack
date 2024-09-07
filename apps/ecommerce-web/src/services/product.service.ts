@@ -10,19 +10,25 @@ export const listProduct = (page = 1, pageSize = 50): Promise<Product[]> => {
     .get<Product[]>(`${REST_API_URL}/products/${page}/${pageSize}`)
     .then((response) => response.data);
 };
-export const searchProducts = (text: string): Promise<string[]> => {
+export const searchProducts = (text: string): Promise<Product[]> => {
   return restClient
-    .get<string[]>(`/products/search/${text}`)
+    .get<Product[]>(`/products/search/${text}`)
     .then((response) => response.data);
 };
-export const elasticSearchProducts = (text: string): Promise<string[]> => {
+export const searchSuggestions = (text: string): Promise<string[]> => {
   return restClient
-    .get<string[]>(`/products/search-elastic/${text}`)
+    .get<string[]>(`/products/suggestions-elastic/${text}`)
     .then((response) => response.data);
 };
 
-export const redisSearchProducts = (text: string): Promise<string[]> => {
+export const searchSuggestionsRedis = (text: string): Promise<string[]> => {
   return axios
-    .get<string[]>(`${REST_API_URL}/products/search-redis/${text}`)
+    .get<string[]>(`${REST_API_URL}/products/suggestions-redis/${text}`)
+    .then((response) => response.data);
+};
+
+export const saveNewKeyword = (keyword: string): Promise<boolean> => {
+  return axios
+    .post<boolean>(`${REST_API_URL}/products/save-new-keyword`, { keyword })
     .then((response) => response.data);
 };

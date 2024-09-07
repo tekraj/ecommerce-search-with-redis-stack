@@ -27,7 +27,7 @@ services:
     networks:
       - ecommerce
     ports:
-      - 6379:6379
+      - 6377:6379
   # mysql database
   ecommerce-mysql:
     image: mariadb

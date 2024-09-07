@@ -20,6 +20,7 @@ CREATE TABLE `Category` (
     `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     UNIQUE INDEX `Category_url_key`(`url`),
+    FULLTEXT INDEX `Category_name_idx`(`name`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -31,11 +32,14 @@ CREATE TABLE `Product` (
     `description` VARCHAR(191) NOT NULL,
     `price` DOUBLE NOT NULL,
     `quantity` INTEGER NOT NULL,
+    `discount` DOUBLE NOT NULL DEFAULT 0,
+    `tags` VARCHAR(191) NULL,
     `categoryId` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     UNIQUE INDEX `Product_url_key`(`url`),
+    FULLTEXT INDEX `Product_name_description_tags_idx`(`name`, `description`, `tags`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -50,8 +54,27 @@ CREATE TABLE `ProductImage` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `ProductSearchHistory` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `keyword` VARCHAR(191) NOT NULL,
+    `userId` INTEGER NULL,
+    `ip` VARCHAR(45) NOT NULL,
+    `deviceType` ENUM('DESKTOP', 'MOBILE', 'TABLET', 'OTHER') NOT NULL,
+    `location` VARCHAR(191) NULL,
+    `resultsCount` INTEGER NOT NULL,
+    `newKeyword` BOOLEAN NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `Product` ADD CONSTRAINT `Product_categoryId_fkey` FOREIGN KEY (`categoryId`) REFERENCES `Category`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `ProductImage` ADD CONSTRAINT `ProductImage_productId_fkey` FOREIGN KEY (`productId`) REFERENCES `Product`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `ProductSearchHistory` ADD CONSTRAINT `ProductSearchHistory_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;

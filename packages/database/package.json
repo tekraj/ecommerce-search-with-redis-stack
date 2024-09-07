@@ -8,10 +8,10 @@
     "prebuild": "npm run generate",
     "build": "esbuild src/index.ts --bundle --packages=external --platform=node --format=cjs --outdir=dist --sourcemap",
     "db:generate": "npx prisma generate",
+    "db:migrate": "npx prisma migrate dev --name",
     "db:migrate:deploy": "npx prisma migrate deploy",
-    "db:migrate:dev": "npx prisma migrate dev",
     "db:push": "npx prisma db push",
-    "db:seed": "tsx src/seed.ts",
+    "db:seed": "tsx src/seed/index.ts",
     "format": "npx prisma format",
     "lint": "eslint . --ext .ts,.tsx --fix",
     "predev": "npm run generate",
@@ -23,11 +23,16 @@
     ]
   },
   "dependencies": {
-    "@prisma/client": "^5.12.1"
+    "@prisma/client": "^5.12.1",
+    "csv-parser": "^3.0.0",
+    "slug": "^9.0.0",
+    "zod": "^3.22.5",
+    "zod-prisma-types": "^3.1.8"
   },
   "devDependencies": {
     "@ecommerce/eslint-config": "1.0.0",
     "@ecommerce/typescript-config": "1.0.0",
+    "@types/slug": "^5.0.8",
     "prisma": "^5.10.2",
     "rimraf": "^5.0.5",
     "tsx": "^4.7.1",

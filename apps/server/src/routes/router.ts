@@ -7,6 +7,9 @@ import type {
   Router,
 } from 'express';
 
+import { elasticSearchProductsTags } from '~/elastic-search/search';
+import { detectDeviceType } from '~/utils/detect-device';
+
 import { CategoryService } from '../services/category-service';
 import { ProductService } from '../services/product-service';
 
@@ -38,26 +41,30 @@ router.get(
     if (!searchQuery) {
       response.send([]);
     } else {
-      const products = await productService.search(searchQuery);
+      const deviceType = detectDeviceType(req.headers['user-agent'] ?? '');
+      const products = await productService.searchProducts({
+        searchQuery,
+        ip: req.ip ?? '',
+        deviceType,
+      });
       response.send(products);
     }
   }),
 );
 router.get(
-  '/products/search-elastic/:query',
+  '/products/suggestions-elastic/:query',
   asyncHandler(async (req: Request, response: Response) => {
     const searchQuery = req.params.query;
     if (!searchQuery) {
       response.send([]);
     } else {
-      const products =
-        await productService.searchWithElasticSearch(searchQuery);
+      const products = await elasticSearchProductsTags(searchQuery);
       response.send(products);
     }
   }),
 );
 router.get(
-  '/products/search-redis/:query',
+  '/products/suggestions-redis/:query',
   asyncHandler(async (req: Request, response: Response) => {
     const searchQuery = req.params.query;
     if (!searchQuery) {

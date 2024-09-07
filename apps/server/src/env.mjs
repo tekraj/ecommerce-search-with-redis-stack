@@ -1,4 +1,3 @@
-/* eslint-disable import/no-unresolved -- fix issue */
 import { createEnv } from '@t3-oss/env-core';
 import { z } from 'zod';
 

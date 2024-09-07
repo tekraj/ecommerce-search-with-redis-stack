@@ -1,15 +1,22 @@
 import stopwords from 'natural';
 
-import type { Product, Prisma } from '@ecommerce/database';
-import { prisma } from '@ecommerce/database';
+import type { Product, Prisma, DeviceType } from '@ecommerce/database';
+import {
+  ProductIdSchema,
+  ProductPartialSchema,
+  ProductSchema,
+  prisma,
+} from '@ecommerce/database';
 
 import { matchMostSimilarQuery } from '~/nlp/match-similar-word';
 
-import { esClient, productIndexName } from '../elastic-search/elastic';
 import { redisClient } from '../redis/redis';
 import { redisProductSchema } from '../redis/schema';
+import { ProductSearchHistoryService } from './product-search-history-service';
 
 export class ProductService {
+  private readonly productSearchHistoryService =
+    new ProductSearchHistoryService();
   async list(page = 1, pageSize = 10): Promise<Product[]> {
     return prisma.product.findMany({
       take: pageSize,
@@ -19,7 +26,12 @@ export class ProductService {
 
   async create(data: Prisma.ProductCreateInput): Promise<Product | null> {
     try {
-      return prisma.product.create({ data });
+      const result = ProductSchema.parse({
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      return prisma.product.create({ data: result });
     } catch (e) {
       return null;
     }
@@ -27,9 +39,10 @@ export class ProductService {
 
   async upsert(data: Prisma.ProductCreateInput): Promise<Product | null> {
     try {
+      const result = ProductSchema.parse(data);
       return prisma.product.upsert({
-        where: { url: data.url },
-        create: data,
+        where: { url: result.url },
+        create: result,
         update: { updatedAt: new Date() },
       });
     } catch (e) {
@@ -50,7 +63,8 @@ export class ProductService {
   }
 
   async getById(id: number): Promise<Product | null> {
-    return prisma.product.findUnique({ where: { id } });
+    const { id: Id } = ProductIdSchema.parse({ id });
+    return prisma.product.findUnique({ where: { id: Id } });
   }
 
   async update(
@@ -58,7 +72,9 @@ export class ProductService {
     data: Prisma.CategoryUpdateInput,
   ): Promise<Product | null> {
     try {
-      await prisma.product.update({ where: { id }, data });
+      const { id: Id } = ProductIdSchema.parse({ id });
+      const result = ProductPartialSchema.parse(data);
+      await prisma.product.update({ where: { id: Id }, data: result });
       return prisma.product.findUnique({ where: { id } });
     } catch (error) {
       return null;
@@ -67,71 +83,46 @@ export class ProductService {
 
   async delete(id: number): Promise<Product | null> {
     try {
-      const deletedProduct = await prisma.product.delete({ where: { id } });
+      const { id: Id } = ProductIdSchema.parse({ id });
+      const deletedProduct = await prisma.product.delete({ where: { id: Id } });
       return deletedProduct;
     } catch (error) {
       return null;
     }
   }
 
-  async search(searchQuery: string) {
+  async searchProducts({
+    searchQuery,
+    ip,
+    deviceType,
+  }: {
+    searchQuery: string;
+    ip: string;
+    deviceType: DeviceType;
+  }) {
     try {
       const products: Product[] = await prisma.$queryRaw`
       SELECT *
       FROM Product
-      WHERE MATCH(name, description) AGAINST (${searchQuery} IN NATURAL LANGUAGE MODE)
+      WHERE MATCH(name, description,tags) AGAINST (${searchQuery} IN NATURAL LANGUAGE MODE)
       order by id desc LIMIT 20 ;
     `;
-      return products
-        .flatMap((p) => p.tags?.split(','))
-        .filter((p) => p)
-        .slice(0, 20);
+      void this.productSearchHistoryService.create({
+        keyword: searchQuery,
+        ip,
+        deviceType,
+        location: 'kathmandu',
+        resultsCount: products.length,
+        newKeyword: true,
+      });
+      return products;
     } catch (e) {
-      return null;
+      return [];
     }
   }
 
-  async searchWithElasticSearch(searchQuery: string) {
-    try {
-      const results = await esClient.search({
-        index: productIndexName,
-        body: {
-          size: 100, // Return only the first 100 results
-          query: {
-            multi_match: {
-              query: searchQuery,
-              fields: ['name^3', 'description', 'tags'],
-              type: 'best_fields',
-              fuzziness: 'AUTO',
-              operator: 'AND',
-              tie_breaker: 0.3,
-              minimum_should_match: '75%',
-              boost: 2,
-            },
-          },
-        },
-      });
-      const tags = results.hits.hits
-        .map((h) => {
-          return h._source
-            ? {
-                ...(h._source as Product),
-              }
-            : null;
-        })
-        .filter((h) => h)
-        .flatMap((p) => p?.tags?.split(','))
-        .filter((p) => p) as string[];
-      const mostSimilarTags = matchMostSimilarQuery(tags, searchQuery);
-      return mostSimilarTags.splice(0, 20);
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
-  }
   async searchWithRedisStack(searchQuery: string) {
     try {
-      console.log(stopwords.stopwords);
       const client = await redisClient();
       const spellingFixedQuery = (
         await Promise.all(

@@ -1,32 +1,41 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import type { ChangeEvent } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Cart } from 'src/assets/icons/cart';
+import { CartIcon } from 'src/assets/icons/cart';
 import { Logo } from 'src/assets/logos/logo';
-import { elasticSearchProducts } from 'src/services/product.service';
+import { saveNewKeyword, searchSuggestions } from 'src/services/product.service';
 import { useDebouncedCallback } from 'use-debounce';
+import { useNavigate } from 'react-router-dom';
+import { SearchIcon } from 'src/assets/icons/search';
+import { ArrowTopIcon } from 'src/assets/icons/arrow-top';
 
 export function Header() {
+    const navigate = useNavigate();
 
     const [keyword, setKeyword] = useState<string>('');
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    const { data, refetch } = useQuery({
-        queryKey: ['products'],
-        queryFn: () => elasticSearchProducts(keyword),
+    const { data: suggestionTags, refetch: searchProductSuggestions } = useQuery({
+        queryKey: ['search-tags'],
+        queryFn: () => searchSuggestions(keyword),
         enabled: false
     });
 
+    const addNewKeyword = useMutation({
+        mutationKey: ['add-new-keyword'],
+        mutationFn: saveNewKeyword,
+    });
+
     const debouncedFetch = useDebouncedCallback(() => {
-        void refetch();
-    }, 2000);
+        void searchProductSuggestions();
+    }, 500);
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value.trim();
+        const value = e.target.value;
         setKeyword(value);
-        debouncedFetch();
         setIsDropdownOpen(true);
+        debouncedFetch();
 
     };
     const handleClickOutside = (event: MouseEvent) => {
@@ -41,6 +50,14 @@ export function Header() {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
+    const searchProducts = (product: string) => {
+        setIsDropdownOpen(false);
+        setKeyword('');
+        addNewKeyword.mutate(product);
+        navigate(`/search?keyword=${product}`);
+    }
+
     return (
         <>
             <header className="bg-gray-300 relative z-20 ">
@@ -51,41 +68,55 @@ export function Header() {
                         </Link>
                     </div>
 
-                    <div className="flex-grow  w-[60%] relative">
+                    <div className="flex-grow w-[60%] relative">
                         <input
-                            className="w-full p-2 rounded border border-gray-600  focus:outline-none focus:border-blue-500"
-                            onChange={handleChange} onFocus={() => { setIsDropdownOpen(true) }}
+                            className="w-full p-2 pr-10 rounded border border-gray-600 focus:outline-none focus:border-blue-500"
+                            onChange={handleChange}
+                            onFocus={() => { setIsDropdownOpen(true) }}
                             placeholder="Search products..."
                             type="text"
                             value={keyword}
                         />
-                        {isDropdownOpen ? <div
-                            aria-labelledby="searchDropdown"
-                            className="absolute z-20 mt-2 w-[100%] bg-white border border-gray-300 rounded-lg shadow-lg"
-                            ref={dropdownRef}
-                            style={{ top: '32px' }}
+                        <button
+                            className={`absolute right-0 top:0  p-2 rounded ${keyword ? 'text-white bg-blue-400' : 'text-gray-600 bg-gray-100'} hover:bg-blue-600`}
+                            onClick={() => { searchProducts(keyword); }}
+                            type="button"
                         >
-                            <div className="p-2">
-                                {data && data.length > 0 ? (
-                                    data.map((product) => (
-                                        <Link
-                                            className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
+                            <SearchIcon />
+
+                        </button>
+
+                        {!!keyword && isDropdownOpen && !!suggestionTags?.length ? (
+                            <div
+                                aria-labelledby="searchDropdown"
+                                className="absolute z-20 mt-0 w-full bg-white border border-gray-300 rounded-lg shadow-lg"
+                                ref={dropdownRef}
+                                style={{ top: '42px' }} // Adjusted to accommodate button height
+                            >
+                                <div className="p-2">
+                                    {suggestionTags.map((product) => (
+                                        <button
+                                            className="flex items-center justify-between px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-left"
                                             key={product}
-                                            to={`/search/${product}`}
+                                            onClick={() => {
+                                                searchProducts(product);
+                                            }}
+                                            type="button"
                                         >
                                             {product}
-                                        </Link>
-                                    ))
-                                ) : (
-                                    <div className="p-4 text-gray-500">No results found</div>
-                                )}
+                                            <span className='opacity-15'>
+                                                <ArrowTopIcon />
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                        </div> : null}
+                        ) : null}
                     </div>
 
                     <div className="flex-shrink-0 w-[20%] ml-auto text-right">
                         <Link className='inline-block' to="/cart">
-                            <Cart />
+                            <CartIcon />
                         </Link>
                     </div>
                 </div>
@@ -103,7 +134,7 @@ export function Header() {
             </header >
 
             {
-                isDropdownOpen ? <div className="fixed inset-0 bg-black opacity-50 z-10" /> : null
+                !!keyword && isDropdownOpen && !!suggestionTags?.length ? <div className="fixed inset-0 bg-black opacity-50 z-10" /> : null
             }
         </>
     );

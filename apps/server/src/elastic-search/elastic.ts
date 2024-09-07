@@ -15,11 +15,13 @@ export const searchProperty: MappingProperty = {
   search_analyzer: 'standard',
 };
 export const productIndexName = 'products';
-export type ElasticProduct = {
-  name: string;
-  id: number;
-  description: string;
-  category: string;
+export const productTagIndexName = 'product-tags';
+
+export type ElasticSchemaIndex = {
+  index: {
+    _index: string;
+    _id: number | string;
+  };
 };
 export const createElasticIndex = async (
   indexName: string,
@@ -62,6 +64,18 @@ export const createElasticIndex = async (
     });
     return true;
   } catch (e) {
+    return null;
+  }
+};
+export const deleteElasticIndex = async (indexName: string) => {
+  try {
+    const response = await esClient.indices.delete({
+      index: indexName,
+    });
+    console.log(`Index ${indexName} deleted successfully`, response);
+    return response;
+  } catch (error) {
+    console.error(`Error deleting index ${indexName}:`, error);
     return null;
   }
 };

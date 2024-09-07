@@ -4,13 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import slug from 'slug';
 
-import type { Prisma } from '@ecommerce/database';
-
-import { CategoryService } from '../services/category-service';
-import { ProductService } from '../services/product-service';
-
-const categoryService = new CategoryService();
-const productService = new ProductService();
+import type { Prisma } from '..';
+import { prisma } from '..';
 
 type CSVFormat = {
   name: string;
@@ -23,7 +18,7 @@ type CSVFormat = {
   discount_price: number;
   actual_price: string;
 };
-const dataDir = './data';
+const dataDir = process.env.DATA_DIR ?? 'data';
 export const readProductCSV = async (
   filePath: string,
   categoryId: number,
@@ -56,27 +51,39 @@ export const readProductCSV = async (
 
 export const seedCategoryProducts = async () => {
   const categories = fs.readdirSync(dataDir);
-
   const allSavedCategories = await Promise.all(
     categories.map(async (category) => {
-      return categoryService.upsert({
-        name: category.replace('.csv', ''),
-        url: slug(category.replace('.csv', '')),
+      const name = category.replace('.csv', '');
+      const url = slug(name);
+      return prisma.category.upsert({
+        where: { url },
+        create: { name, url },
+        update: { updatedAt: new Date() },
       });
     }),
   );
 
   //
   for (const category of allSavedCategories) {
-    if (!category) continue;
     const products = await readProductCSV(
       path.join(dataDir, `${category.name}.csv`),
       category.id,
     );
     for (const product of products) {
-      await productService.upsert(product);
+      await prisma.product.upsert({
+        where: { url: product.url },
+        create: product,
+        update: { updatedAt: new Date() },
+      });
     }
   }
+  process.exit(0);
 };
 
-await seedCategoryProducts();
+seedCategoryProducts()
+  .then((data) => {
+    console.log(data);
+  })
+  .catch((e) => {
+    console.log(e);
+  });
