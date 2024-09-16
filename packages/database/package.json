@@ -8,7 +8,7 @@
     "prebuild": "npm run generate",
     "build": "esbuild src/index.ts --bundle --packages=external --platform=node --format=cjs --outdir=dist --sourcemap",
     "db:generate": "npx prisma generate",
-    "db:migrate": "npx prisma migrate dev --name",
+    "db:migrate": "npx prisma migrate dev --name add_parent_category_field",
     "db:migrate:deploy": "npx prisma migrate deploy",
     "db:push": "npx prisma db push",
     "db:seed": "tsx src/seed/index.ts",

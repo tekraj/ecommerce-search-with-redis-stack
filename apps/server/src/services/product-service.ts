@@ -160,4 +160,25 @@ export class ProductService {
       return null;
     }
   }
+
+  async getProductsByCategoryId({
+    categoryId,
+    page = 1,
+    pageSize = 100,
+  }: {
+    categoryId: number;
+    page: number;
+    pageSize: number;
+  }) {
+    try {
+      return prisma.product.findMany({
+        where: { categoryId },
+        take: pageSize,
+        skip: (page - 1) * pageSize,
+      });
+    } catch (e) {
+      console.log(e);
+      return [];
+    }
+  }
 }

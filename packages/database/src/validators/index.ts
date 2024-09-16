@@ -14,7 +14,7 @@ export const TransactionIsolationLevelSchema = z.enum(['ReadUncommitted','ReadCo
 
 export const UserScalarFieldEnumSchema = z.enum(['id','email','name','password','createdAt','updatedAt']);
 
-export const CategoryScalarFieldEnumSchema = z.enum(['id','name','url','createdAt','updatedAt']);
+export const CategoryScalarFieldEnumSchema = z.enum(['id','name','parent_id','url','createdAt','updatedAt']);
 
 export const ProductScalarFieldEnumSchema = z.enum(['id','name','url','description','price','quantity','discount','tags','categoryId','createdAt','updatedAt']);
 
@@ -26,9 +26,9 @@ export const SortOrderSchema = z.enum(['asc','desc']);
 
 export const UserOrderByRelevanceFieldEnumSchema = z.enum(['email','name','password']);
 
-export const CategoryOrderByRelevanceFieldEnumSchema = z.enum(['name','url']);
-
 export const NullsOrderSchema = z.enum(['first','last']);
+
+export const CategoryOrderByRelevanceFieldEnumSchema = z.enum(['name','url']);
 
 export const ProductOrderByRelevanceFieldEnumSchema = z.enum(['name','url','description','tags']);
 
@@ -74,6 +74,7 @@ export type UserPartial = z.infer<typeof UserPartialSchema>
 export const CategorySchema = z.object({
   id: z.number().int(),
   name: z.string(),
+  parent_id: z.number().int().nullable(),
   url: z.string(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),

@@ -9,12 +9,12 @@
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "db:migrate:deploy": {},
+    "db:migrate": {},
     "db:push": {},
     "db:seed": {},
     "sync:elasticsearch": {},
     "sync:redis": {},
     "db:generate": {},
-    "db:migrate:dev": {},
     "dev": {
       "cache": false,
       "persistent": true,

@@ -84,5 +84,28 @@ router.get(
     response.send(products);
   }),
 );
+// category routes
 
+router.get(
+  '/categories',
+  asyncHandler(async (_: Request, response: Response) => {
+    const categories = await categoryService.list();
+    response.send(categories);
+  }),
+);
+
+router.get(
+  '/products/:categoryId',
+  asyncHandler(async (req: Request, response: Response) => {
+    const categoryId = Number(req.params.categoryId);
+    const page = Number(req.query.page);
+    const pageSize = Number(req.query.pageSize);
+    const products = await productService.getProductsByCategoryId({
+      categoryId,
+      page,
+      pageSize,
+    });
+    response.send(products);
+  }),
+);
 export { router };

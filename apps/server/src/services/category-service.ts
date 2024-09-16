@@ -7,8 +7,13 @@ import {
 } from '@ecommerce/database';
 
 export class CategoryService {
-  async list(page = 1, limit = 10): Promise<Category[]> {
-    return prisma.category.findMany({ take: limit, skip: (page - 1) * limit });
+  async list(page = 1, limit = 100) {
+    return prisma.category.findMany({
+      include: { childCategories: true },
+      take: limit,
+      skip: (page - 1) * limit,
+      where: { parent_id: null, childCategories: { some: {} } },
+    });
   }
 
   async create(data: Prisma.CategoryCreateInput): Promise<Category | null> {

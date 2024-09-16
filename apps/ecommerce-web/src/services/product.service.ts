@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { REST_API_URL } from 'src/data/constants';
 
-import type { Product } from '@ecommerce/database';
+import type { Category, Product } from '@ecommerce/database';
 
 import { restClient } from './api';
 
@@ -30,5 +30,31 @@ export const searchSuggestionsRedis = (text: string): Promise<string[]> => {
 export const saveNewKeyword = (keyword: string): Promise<boolean> => {
   return axios
     .post<boolean>(`${REST_API_URL}/products/save-new-keyword`, { keyword })
+    .then((response) => response.data);
+};
+
+export const listCategories = (): Promise<
+  (Category & { childCategories: Category[] })[]
+> => {
+  return axios
+    .get<
+      (Category & { childCategories: Category[] })[]
+    >(`${REST_API_URL}/categories`)
+    .then((response) => response.data);
+};
+
+export const getProductByCategoryId = ({
+  page,
+  pageSize,
+  categoryId,
+}: {
+  page: number;
+  pageSize: number;
+  categoryId: number;
+}): Promise<Product[]> => {
+  return axios
+    .get<
+      Product[]
+    >(`${REST_API_URL}/products/${categoryId}?page=${page}&pageSize=${pageSize}`)
     .then((response) => response.data);
 };

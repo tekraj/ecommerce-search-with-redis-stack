@@ -4,11 +4,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CartIcon } from 'src/assets/icons/cart';
 import { Logo } from 'src/assets/logos/logo';
-import { saveNewKeyword, searchSuggestions } from 'src/services/product.service';
+import { listCategories, saveNewKeyword, searchSuggestions } from 'src/services/product.service';
 import { useDebouncedCallback } from 'use-debounce';
 import { useNavigate } from 'react-router-dom';
 import { SearchIcon } from 'src/assets/icons/search';
 import { ArrowTopIcon } from 'src/assets/icons/arrow-top';
+import { BarIcon } from 'src/assets/icons/bar';
 
 export function Header() {
     const navigate = useNavigate();
@@ -21,6 +22,10 @@ export function Header() {
         queryKey: ['search-tags'],
         queryFn: () => searchSuggestions(keyword),
         enabled: false
+    });
+    const { data: categories } = useQuery({
+        queryKey: ['list-categories'],
+        queryFn: () => listCategories(),
     });
 
     const addNewKeyword = useMutation({
@@ -57,6 +62,7 @@ export function Header() {
         addNewKeyword.mutate(product);
         navigate(`/search?keyword=${product}`);
     }
+
 
     return (
         <>
@@ -122,9 +128,41 @@ export function Header() {
                 </div>
                 <nav className="bg-gray-900">
                     <div className="container mx-auto p-2">
-                        <ul className="flex justify-around">
+                        <ul className="flex justify-around relative group">
+                            <li >
+                                <Link className="text-gray-300 hover:text-white flex items-center space-x-2" to="/category">
+                                    <BarIcon />
+                                    <span>Category</span>
+                                </Link>
+
+                                <div className="absolute left-0 mt-0 bg-white shadow-lg rounded-md hidden group-hover:block z-20 w-full">
+                                    <div className="grid grid-cols-4 gap-4 p-4">
+                                        {/* Loop through categories */}
+                                        {categories?.map((categoryItem) => (
+                                            <div className="space-y-2" key={categoryItem.id}>
+                                                {/* Main Category */}
+                                                <h4 className="text-lg font-semibold text-gray-700">{categoryItem.name}</h4>
+                                                <ul className="space-y-1">
+                                                    {/* Sub-categories */}
+                                                    {categoryItem.childCategories.map((subCategory) => (
+                                                        <li key={subCategory.id}>
+                                                            <Link
+                                                                className="block text-gray-600 hover:text-blue-500"
+                                                                to={`/category/${subCategory.id}`}
+                                                            >
+                                                                {subCategory.name}
+                                                            </Link>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </li>
+
+
                             <li><Link className="text-gray-300 hover:text-white" to="/">Home</Link></li>
-                            <li><Link className="text-gray-300 hover:text-white" to="/products">Products</Link></li>
                             <li><Link className="text-gray-300 hover:text-white" to="/about">About Us</Link></li>
                             <li><Link className="text-gray-300 hover:text-white" to="/contact">Contact</Link></li>
                             <li><Link className="text-gray-300 hover:text-white" to="/cart">Cart</Link></li>
