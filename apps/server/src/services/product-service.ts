@@ -11,8 +11,6 @@ import {
 
 import { matchMostSimilarQuery } from '~/nlp/match-similar-word';
 
-import { redisClient } from '../redis/redis';
-import { redisProductSchema } from '../redis/schema';
 import { ProductSearchHistoryService } from './product-search-history-service';
 
 export class ProductService {
@@ -135,46 +133,6 @@ export class ProductService {
       return products;
     } catch (e) {
       return [];
-    }
-  }
-
-  async searchWithRedisStack(searchQuery: string) {
-    try {
-      const client = await redisClient();
-      const spellingFixedQuery = (
-        await Promise.all(
-          searchQuery.split(' ').map(async (word) => {
-            if (stopwords.stopwords.includes(word.toLowerCase())) return;
-            const checkSpelling = await client.ft.spellCheck(
-              `idx:${redisProductSchema}`,
-              word,
-            );
-            return checkSpelling[0]?.suggestions[0]?.suggestion ?? word;
-          }),
-        )
-      ).filter((w) => w);
-      const results = await client.ft.search(
-        `idx:${redisProductSchema}`,
-        `@name:(${spellingFixedQuery.join(' ')}) | @description:(${spellingFixedQuery.join(' ')}) `,
-        {
-          LIMIT: {
-            from: 0,
-            size: 100,
-          },
-          SCORER: 'BM25',
-        },
-      );
-      const tags = results.documents
-        .map((d) => ({
-          ...(d.value as unknown as Product),
-        }))
-        .flatMap((p) => p.tags?.split(','))
-        .filter((p) => p) as string[];
-      const mostSimilarTags = matchMostSimilarQuery(tags, searchQuery);
-      return mostSimilarTags.splice(0, 20);
-    } catch (e) {
-      console.log(e);
-      return null;
     }
   }
 
