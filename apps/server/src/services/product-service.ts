@@ -1,4 +1,5 @@
 import stopwords from 'natural';
+import slug from 'slug';
 
 import type { Product, Prisma, DeviceType } from '@ecommerce/database';
 import {
@@ -17,21 +18,34 @@ import { ProductSearchHistoryService } from './product-search-history-service';
 export class ProductService {
   private readonly productSearchHistoryService =
     new ProductSearchHistoryService();
-  async list(page = 1, pageSize = 10): Promise<Product[]> {
-    return prisma.product.findMany({
+  async list(page = 1, pageSize = 10) {
+    const data = await prisma.product.findMany({
       take: pageSize,
       skip: (page - 1) * pageSize,
+      include: { category: true },
     });
+    const hasMore = (
+      await prisma.product.findMany({
+        take: 1,
+        skip: (page - 1) * pageSize + 1,
+      })
+    ).length;
+    return { data, hasMore };
   }
 
-  async create(data: Prisma.ProductCreateInput): Promise<Product | null> {
+  async create(
+    data: Omit<Prisma.ProductCreateInput, 'category' | 'url'> & {
+      categoryId: number;
+    },
+  ): Promise<Product | null> {
     try {
       const result = ProductSchema.parse({
         ...data,
+        url: slug(data.name),
         createdAt: new Date(),
         updatedAt: new Date(),
       });
-      return prisma.product.create({ data: result });
+      return prisma.product.create({ data: result as Product });
     } catch (e) {
       return null;
     }
@@ -42,7 +56,7 @@ export class ProductService {
       const result = ProductSchema.parse(data);
       return prisma.product.upsert({
         where: { url: result.url },
-        create: result,
+        create: result as Product,
         update: { updatedAt: new Date() },
       });
     } catch (e) {
@@ -64,7 +78,10 @@ export class ProductService {
 
   async getById(id: number): Promise<Product | null> {
     const { id: Id } = ProductIdSchema.parse({ id });
-    return prisma.product.findUnique({ where: { id: Id } });
+    return prisma.product.findUnique({
+      where: { id: Id },
+      include: { images: true },
+    });
   }
 
   async update(

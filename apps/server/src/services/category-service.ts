@@ -1,3 +1,5 @@
+import slug from 'slug';
+
 import type { Category, Prisma } from '@ecommerce/database';
 import {
   CategoryIdSchema,
@@ -20,6 +22,7 @@ export class CategoryService {
     try {
       const result = CategorySchema.parse({
         ...data,
+        url: slug(data.name),
         createdAt: new Date(),
         updatedAt: new Date(),
       });

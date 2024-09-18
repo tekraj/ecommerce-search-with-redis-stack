@@ -5,9 +5,12 @@ import type { Category, Product } from '@ecommerce/database';
 
 import { restClient } from './api';
 
-export const listProduct = (page = 1, pageSize = 50): Promise<Product[]> => {
+export const listProduct = (
+  page = 1,
+  pageSize = 50,
+): Promise<{ data: Product[] }> => {
   return axios
-    .get<Product[]>(`${REST_API_URL}/products/${page}/${pageSize}`)
+    .get<{ data: Product[] }>(`${REST_API_URL}/products/${page}/${pageSize}`)
     .then((response) => response.data);
 };
 export const searchProducts = (text: string): Promise<Product[]> => {

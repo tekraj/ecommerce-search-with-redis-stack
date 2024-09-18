@@ -16,7 +16,7 @@ export function Home() {
       {productSections.map(section => {
         return (<section className="py-8" key={section}>
           {isLoading ? <p>Loading...</p> :
-            <Products products={products ?? []} title={section} />
+            <Products products={products?.data ?? []} title={section} />
           }
         </section>)
       })}
