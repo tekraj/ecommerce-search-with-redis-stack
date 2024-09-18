@@ -63,18 +63,7 @@ router.get(
     }
   }),
 );
-router.get(
-  '/products/suggestions-redis/:query',
-  asyncHandler(async (req: Request, response: Response) => {
-    const searchQuery = req.params.query;
-    if (!searchQuery) {
-      response.send([]);
-    } else {
-      const products = await productService.searchWithRedisStack(searchQuery);
-      response.send(products);
-    }
-  }),
-);
+
 router.get(
   '/products/:page/:pageSize',
   asyncHandler(async (req: Request, response: Response) => {
