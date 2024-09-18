@@ -1,5 +1,3 @@
-import * as geoip from 'geoip-lite';
-
 import type { Prisma, ProductSearchHistory } from '@ecommerce/database';
 import { ProductSearchHistorySchema, prisma } from '@ecommerce/database';
 
@@ -21,10 +19,7 @@ export class ProductSearchHistoryService {
         where: { keyword: data.keyword },
       });
       data.newKeyword = Boolean(newKeyword);
-      const location = geoip.lookup(data.ip);
-      data.location = Object.values(location ?? { city: 'Kathmandu' }).join(
-        ', ',
-      );
+      data.location = 'Kathmandu';
       const result = ProductSearchHistorySchema.parse({
         ...data,
         createdAt: new Date(),
