@@ -79,11 +79,3 @@ export const seedCategoryProducts = async () => {
   }
   process.exit(0);
 };
-
-seedCategoryProducts()
-  .then((data) => {
-    console.log(data);
-  })
-  .catch((e) => {
-    console.log(e);
-  });

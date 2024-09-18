@@ -11,6 +11,7 @@
     "build": "esbuild src/index.ts --bundle --packages=external --platform=node --format=esm --outdir=dist --sourcemap",
     "dev": "NODE_OPTIONS='--trace-warnings' tsx watch src/index.ts",
     "lint": "eslint . --ext .ts --fix",
+    "setup": "npx tsx src/setup.ts",
     "sync:elasticsearch": "npx tsx src/elastic-search/sync.ts",
     "sync:redis": "npx tsx src/redis/sync.ts",
     "test": "echo \"Error: no test specified\" && exit 1"

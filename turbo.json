@@ -15,6 +15,7 @@
     "sync:elasticsearch": {},
     "sync:redis": {},
     "db:generate": {},
+    "setup": {},
     "dev": {
       "cache": false,
       "persistent": true,
