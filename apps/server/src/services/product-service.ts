@@ -1,4 +1,3 @@
-import stopwords from 'natural';
 import slug from 'slug';
 
 import type { Product, Prisma, DeviceType } from '@ecommerce/database';
@@ -40,11 +39,16 @@ export class ProductService {
       const result = ProductSchema.parse({
         ...data,
         url: slug(data.name),
+        price: Number(data.price),
+        discount: Number(data.discount),
+        quantity: Number(data.quantity),
+        categoryId: Number(data.categoryId),
         createdAt: new Date(),
         updatedAt: new Date(),
       });
       return prisma.product.create({ data: result as Product });
     } catch (e) {
+      console.log(e);
       return null;
     }
   }
@@ -105,7 +109,24 @@ export class ProductService {
       return null;
     }
   }
-
+  async searchProductTag(searchQuery: string) {
+    try {
+      const products: Product[] = await prisma.$queryRaw`
+      SELECT tags
+      FROM Product
+      WHERE MATCH(name, description,tags) AGAINST (${searchQuery} IN NATURAL LANGUAGE MODE)
+      order by id desc LIMIT 20 ;
+    `;
+      return matchMostSimilarQuery(
+        products
+          .flatMap((p) => p.tags?.split(','))
+          .filter((t) => t) as string[],
+        searchQuery,
+      );
+    } catch (e) {
+      return [];
+    }
+  }
   async searchProducts({
     searchQuery,
     ip,

@@ -7,7 +7,6 @@ import type {
   Router,
 } from 'express';
 
-import { elasticSearchProductsTags } from '~/elastic-search/search';
 import { detectDeviceType } from '~/utils/detect-device';
 
 import { CategoryService } from '../services/category-service';
@@ -58,7 +57,7 @@ router.get(
     if (!searchQuery) {
       response.send([]);
     } else {
-      const products = await elasticSearchProductsTags(searchQuery);
+      const products = await productService.searchProductTag(searchQuery);
       response.send(products);
     }
   }),

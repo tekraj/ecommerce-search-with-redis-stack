@@ -139,7 +139,7 @@ export type UserPartial = z.infer<typeof UserPartialSchema>;
 export const CategorySchema = z.object({
   id: z.number().int().optional(),
   name: z.string(),
-  parent_id: z.number().int().nullable(),
+  parent_id: z.number().int().nullable().optional(),
   url: z.string(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),

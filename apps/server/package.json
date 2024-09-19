@@ -10,8 +10,9 @@
   "scripts": {
     "build": "esbuild src/index.ts --bundle --packages=external --platform=node --format=esm --outdir=dist --sourcemap",
     "dev": "NODE_OPTIONS='--trace-warnings' tsx watch src/index.ts",
+    "initial-setup": "npx tsx src/setup.ts",
     "lint": "eslint . --ext .ts --fix",
-    "setup": "npx tsx src/setup.ts",
+    "start": " tsx watch src/index.ts",
     "sync:elasticsearch": "npx tsx src/elastic-search/sync.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -23,7 +24,6 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.651.1",
     "@ecommerce/database": "1.0.0",
-    "@elastic/elasticsearch": "^8.13.1",
     "@t3-oss/env-core": "^0.10.1",
     "@types/mime-types": "^2.1.4",
     "@types/multer-s3": "^3.0.3",

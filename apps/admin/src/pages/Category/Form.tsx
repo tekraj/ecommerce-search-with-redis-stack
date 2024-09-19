@@ -11,8 +11,7 @@ import { toast } from "react-toastify";
 // Define the Zod schema for category
 const CategorySchema = z.object({
     name: z.string().min(1, "Category name is required"),
-    url: z.string().url("Must be a valid URL"),
-    parent_id: z.number().optional() // Make this optional if not applicable
+    parent_id: z.coerce.number().optional()
 });
 
 type CategorySchemaType = z.infer<typeof CategorySchema>;
@@ -63,7 +62,6 @@ export function CategoryForm() {
         if (category) {
             categoryForm.reset({
                 name: category.name,
-                url: category.url,
                 parent_id: category.parent_id ?? undefined
             });
         }
@@ -97,19 +95,7 @@ export function CategoryForm() {
                         />
                         {categoryForm.formState.errors.name ? <p className="mt-2 text-sm text-red-600">{categoryForm.formState.errors.name.message}</p> : null}
                     </div>
-                    <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="url">
-                            URL
-                        </label>
-                        <input
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                            id="url"
-                            placeholder="Enter URL"
-                            type="text"
-                            {...categoryForm.register("url")}
-                        />
-                        {categoryForm.formState.errors.url ? <p className="mt-2 text-sm text-red-600">{categoryForm.formState.errors.url.message}</p> : null}
-                    </div>
+
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="parent_id">
                             Parent Category
@@ -121,6 +107,8 @@ export function CategoryForm() {
                             {...categoryForm.register("parent_id")}
                             placeholder="Enter parent category ID (optional)"
                         />
+                        {categoryForm.formState.errors.parent_id ? <p className="mt-2 text-sm text-red-600">{categoryForm.formState.errors.parent_id.message}</p> : null}
+
                     </div>
 
                     <div className="flex items-center justify-between">

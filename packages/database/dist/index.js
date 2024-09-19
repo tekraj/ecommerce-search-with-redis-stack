@@ -148,7 +148,7 @@ var UserPartialSchema = UserSchema.partial();
 var CategorySchema = import_zod.z.object({
   id: import_zod.z.number().int().optional(),
   name: import_zod.z.string(),
-  parent_id: import_zod.z.number().int().nullable(),
+  parent_id: import_zod.z.number().int().nullable().optional(),
   url: import_zod.z.string(),
   createdAt: import_zod.z.coerce.date(),
   updatedAt: import_zod.z.coerce.date()

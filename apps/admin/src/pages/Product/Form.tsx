@@ -14,11 +14,11 @@ import { listCategories } from "src/services/category-service";
 const ProductSchema = z.object({
     name: z.string().min(1, "Product name is required"),
     description: z.string().min(1, "Description is required"),
-    price: z.number().min(0, "Price must be a positive number"),
-    quantity: z.number().int().min(0, "Quantity must be a non-negative integer"),
-    discount: z.number().min(0, "Discount must be a non-negative number"),
+    price: z.coerce.number().min(0, "Price must be a positive number"),
+    quantity: z.coerce.number().int().min(0, "Quantity must be a non-negative integer"),
+    discount: z.coerce.number().int().min(0, "Discount must be a non-negative number"),
     tags: z.string().optional(),
-    categoryId: z.number().int().min(1, "Category is required"),
+    categoryId: z.coerce.number().int().min(1, "Category is required"),
 });
 
 type ProductSchemaType = z.infer<typeof ProductSchema>;
@@ -134,6 +134,8 @@ export function ProductForm() {
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
+        console.log(file.size);
+
         if (id) {
             const formData = new FormData();
             formData.append('file', file);
@@ -261,7 +263,6 @@ export function ProductForm() {
                         <input
                             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                             id="discount"
-                            step="0.01"
                             type="number"
                             {...productForm.register("discount")}
                             placeholder="Enter discount amount"

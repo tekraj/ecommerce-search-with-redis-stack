@@ -32,7 +32,7 @@ const upload = multer({
   storage: multerS3({
     s3,
     bucket: env.S3_BUCKET,
-    acl: 'public-read',
+    // acl: 'public-read',
     metadata: (_, file, cb) => {
       cb(null, { fieldName: file.fieldname });
     },
@@ -68,9 +68,14 @@ adminRouter.post(
       req: Request<object, object, { email: string; password: string }>,
       response: Response,
     ) => {
-      const loginData = req.body;
-      const user = await userService.login(loginData);
-      response.send(user);
+      const { email, password } = req.body;
+      const user = await userService.login({ email, password });
+
+      if (!user) {
+        response.status(401).send({ error: 'Invalid email or password' });
+      } else {
+        response.status(200).send(user);
+      }
     },
   ),
 );
@@ -157,7 +162,11 @@ adminRouter.post(
   asyncHandler(async (req: Request, response: Response) => {
     const categoryData = req.body as Prisma.CategoryCreateInput;
     const category = await categoryService.create(categoryData);
-    response.send(category);
+    if (category) {
+      response.send(category);
+    } else {
+      response.status(500).send({ error: 'Unable to create Category' });
+    }
   }),
 );
 adminRouter.post(
@@ -167,7 +176,11 @@ adminRouter.post(
     const id = Number(req.params.id);
     const categoryData = req.body as Partial<User>;
     const result = await categoryService.update(id, categoryData);
-    response.send(result);
+    if (result) {
+      response.send(result);
+    } else {
+      response.status(500).send({ error: 'Unable to update Category' });
+    }
   }),
 );
 
@@ -216,9 +229,10 @@ adminRouter.post(
         productId: product.id,
       }));
       await productImageService.insertBatch(imageData);
+      response.send(product);
+    } else {
+      response.status(500).send({ error: 'Unable to create Product' });
     }
-
-    response.send(product);
   }),
 );
 adminRouter.post(
@@ -228,7 +242,11 @@ adminRouter.post(
     const id = Number(req.params.id);
     const productData = req.body as Partial<User>;
     const result = await productService.update(id, productData);
-    response.send(result);
+    if (result) {
+      response.send(result);
+    } else {
+      response.status(500).send({ error: 'Unable to update Product' });
+    }
   }),
 );
 
@@ -239,11 +257,16 @@ adminRouter.post(
   asyncHandler(async (req: Request, response: Response) => {
     const productId = Number(req.params.productId);
     const file = req.file as Express.MulterS3.File;
+
     const image = await productImageService.create({
       productId,
       url: file.location,
     });
-    response.send(image);
+    if (image) {
+      response.send(image);
+    } else {
+      response.status(500).send({ error: 'Unable to upload new image' });
+    }
   }),
 );
 export { adminRouter };

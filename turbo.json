@@ -2,7 +2,13 @@
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": [".env"],
   "globalDotEnv": [".env"],
-  "globalEnv": ["REDIS_URL", "REDIS_PORT", "REDIS_PASSWORD", "DATABASE_URL"],
+  "globalEnv": [
+    "DATABASE_URL",
+    "AWS_REGION",
+    "S3_BUCKET",
+    "JWT_SECRET",
+    "JWT_REFRESH_SECRET"
+  ],
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
@@ -15,7 +21,11 @@
     "sync:elasticsearch": {},
     "sync:redis": {},
     "db:generate": {},
-    "setup": {},
+    "initial-setup": {},
+    "start": {
+      "cache": true,
+      "persistent": true
+    },
     "dev": {
       "cache": false,
       "persistent": true,

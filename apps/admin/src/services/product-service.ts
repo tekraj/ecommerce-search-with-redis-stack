@@ -44,8 +44,11 @@ export const uploadImage = (
   productId: number,
   formData: FormData,
 ): Promise<ProductImage> => {
+  console.log(formData);
   return restClient
-    .post<ProductImage>(`/products/upload-image/${productId}`, formData)
+    .post<ProductImage>(`/products/upload-image/${productId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
     .then((response) => response.data);
 };
 

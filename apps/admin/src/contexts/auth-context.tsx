@@ -2,6 +2,7 @@ import type { User } from '@ecommerce/database';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { login as loginService, whoIAm } from 'src/services/auth-service';
 
 type AuthContextType = {
@@ -25,15 +26,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginMutation = useMutation({
     mutationKey: ['login'],
     mutationFn: (data: { email: string; password: string }) => loginService(data),
-    onError: (error) => {
-      console.error(error);
+    onError: () => {
+      console.log('dsaflkdsajflkdsa');
+      toast.error('Invalid Email/Password');
     },
     onSuccess: (data) => {
+      if (!data.token) {
+        toast.error('Invalid Email/Password');
+        return;
+      }
       const { token, ...rest } = data;
       localStorage.setItem('token', token);
       setAuthToken(token);
       setIsAuthenticated(true);
       setUser(rest);
+
     },
   });
   const login = (data: { email: string, password: string }) => {
@@ -43,6 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
     setUser(null);
+    window.location.reload();
   };
   const { data: authUser, isError, isLoading: isLoadingUseData, refetch: getUserInfo } = useQuery({
     queryKey: ['whoami'],

@@ -14,7 +14,7 @@ export class CategoryService {
       include: { childCategories: true },
       take: limit,
       skip: (page - 1) * limit,
-      where: { parent_id: null, childCategories: { some: {} } },
+      where: { parent_id: null },
     });
   }
 
@@ -26,6 +26,9 @@ export class CategoryService {
         createdAt: new Date(),
         updatedAt: new Date(),
       });
+      if (!result.parent_id) {
+        result.parent_id = null;
+      }
       return prisma.category.create({ data: result });
     } catch (e) {
       return null;

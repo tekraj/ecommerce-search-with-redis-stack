@@ -20,11 +20,12 @@
     "dev": "pnpm with-env turbo run dev --parallel",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "generate": "pnpm with-env turbo run generate",
+    "initial-setup": "pnpm with-env turbo run initial-setup",
     "preinstall": "npx only-allow pnpm",
     "postinstall": "manypkg check",
     "lint": "turbo lint",
     "lint:fix": "turbo lint -- --fix",
-    "setup": "pnpm with-env turbo run setup",
+    "start": "pnpm with-env turbo run start --parallel",
     "sync:elasticsearch": "pnpm with-env turbo run sync:elasticsearch",
     "sync:redis": "pnpm with-env turbo run sync:redis",
     "with-env": "dotenv -e ./.env --"

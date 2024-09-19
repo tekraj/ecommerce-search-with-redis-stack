@@ -10,32 +10,18 @@ import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 var env = createEnv({
   server: {
-    REDIS_URL: z.string().default("localhost"),
-    REDIS_PORT: z.string().or(z.number()).default(6379),
-    REDIS_PASSWORD: z.string().default("ecommerce"),
     PORT: z.string().or(z.number()).default(5e3),
-    ELASTIC_SEARCH_URL: z.string().default("ecommerce-elasticsearch"),
-    ELASTIC_SEARCH_PORT: z.string().or(z.number()).default(9300),
     JWT_SECRET: z.string(),
     JWT_REFRESH_SECRET: z.string(),
     S3_BUCKET: z.string(),
-    AWS_REGION: z.string().default("us-east"),
-    AWS_ACCESS_KEY_ID: z.string(),
-    AWS_SECRET_ACCESS_KEY: z.string()
+    AWS_REGION: z.string().default("us-east")
   },
   runtimeEnv: {
-    REDIS_URL: process.env.REDIS_URL,
-    REDIS_PORT: process.env.REDIS_PORT,
-    REDIS_PASSWORD: process.env.REDIS_PASSWORD,
     PORT: process.env.PORT,
-    ELASTIC_SEARCH_URL: process.env.ELASTIC_SEARCH_URL,
-    ELASTIC_SEARCH_PORT: process.env.ELASTIC_SEARCH_PORT,
     JWT_SECRET: process.env.JWT_SECRET,
     JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
     S3_BUCKET: process.env.S3_BUCKET,
-    AWS_REGION: process.env.AWS_REGION,
-    AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
-    AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY
+    AWS_REGION: process.env.AWS_REGION
   },
   emptyStringAsUndefined: true
 });
@@ -230,7 +216,7 @@ var CategoryService = class {
       include: { childCategories: true },
       take: limit,
       skip: (page - 1) * limit,
-      where: { parent_id: null, childCategories: { some: {} } }
+      where: { parent_id: null }
     });
   }
   async create(data) {
@@ -241,6 +227,9 @@ var CategoryService = class {
         createdAt: /* @__PURE__ */ new Date(),
         updatedAt: /* @__PURE__ */ new Date()
       });
+      if (!result.parent_id) {
+        result.parent_id = null;
+      }
       return prisma2.category.create({ data: result });
     } catch (e) {
       return null;
@@ -375,13 +364,12 @@ var ProductImageService = class {
 };
 
 // src/services/product-service.ts
-import stopwords from "natural";
 import slug2 from "slug";
 import {
   ProductIdSchema,
   ProductPartialSchema,
   ProductSchema,
-  prisma as prisma6
+  prisma as prisma5
 } from "@ecommerce/database";
 
 // src/nlp/match-similar-word.ts
@@ -435,102 +423,49 @@ var matchMostSimilarQuery = (productTags, searchQuery) => {
   );
 };
 
-// src/redis/redis.ts
-import { createClient } from "redis";
-var client;
-var redisClient = async () => {
-  if (client) {
-    return client;
-  }
-  const redisHost = env.REDIS_URL;
-  const redisPort = env.REDIS_PORT;
-  client = await createClient({
-    url: `redis://${redisHost}:${redisPort}`,
-    password: env.REDIS_PASSWORD
-  }).on("error", (err) => {
-    console.log(err);
-  }).connect();
-  return client;
-};
-
-// src/redis/schema.ts
-import { SchemaFieldTypes } from "redis";
-var redisProductSchema = "products";
-
 // src/services/product-search-history-service.ts
-import * as geoip from "geoip-lite";
-import { ProductSearchHistorySchema, prisma as prisma5 } from "@ecommerce/database";
-
-// src/elastic-search/sync.ts
-import { prisma as prisma4 } from "@ecommerce/database";
-
-// src/elastic-search/elastic.ts
-import { Client } from "@elastic/elasticsearch";
-var esClient = new Client({
-  node: `${env.ELASTIC_SEARCH_URL}:${env.ELASTIC_SEARCH_PORT}`
-});
-var productTagIndexName = "product-tags";
-
-// src/elastic-search/sync.ts
-var addNewProductTag = async (tags) => {
-  return esClient.index({
-    index: productTagIndexName,
-    body: {
-      frequency: 1,
-      tags,
-      createdAt: /* @__PURE__ */ new Date()
-    }
-  });
-};
-
-// src/services/product-search-history-service.ts
+import { ProductSearchHistorySchema, prisma as prisma4 } from "@ecommerce/database";
 var ProductSearchHistoryService = class {
   async list(page = 1, pageSize = 10) {
-    return prisma5.productSearchHistory.findMany({
+    return prisma4.productSearchHistory.findMany({
       take: pageSize,
       skip: (page - 1) * pageSize
     });
   }
   async create(data) {
     try {
-      const newKeyword = prisma5.productSearchHistory.findFirst({
+      const newKeyword = prisma4.productSearchHistory.findFirst({
         where: { keyword: data.keyword }
       });
       data.newKeyword = Boolean(newKeyword);
-      const location = geoip.lookup(data.ip);
-      data.location = Object.values(location ?? { city: "Kathmandu" }).join(
-        ", "
-      );
+      data.location = "Kathmandu";
       const result = ProductSearchHistorySchema.parse({
         ...data,
         createdAt: /* @__PURE__ */ new Date(),
         updatedAt: /* @__PURE__ */ new Date()
       });
-      const history = await prisma5.productSearchHistory.create({
+      const history = await prisma4.productSearchHistory.create({
         data: result
       });
-      if (result.resultsCount > 0) {
-        await addNewProductTag(data.keyword);
-      }
       return history;
     } catch (e) {
       return null;
     }
   }
   async getById(id) {
-    return prisma5.productSearchHistory.findUnique({ where: { id } });
+    return prisma4.productSearchHistory.findUnique({ where: { id } });
   }
   async update(id, data) {
     try {
-      await prisma5.productSearchHistory.update({ where: { id }, data });
-      return prisma5.productSearchHistory.findUnique({ where: { id } });
+      await prisma4.productSearchHistory.update({ where: { id }, data });
+      return prisma4.productSearchHistory.findUnique({ where: { id } });
     } catch (error) {
       return null;
     }
   }
   async delete(id) {
     try {
-      const deletedItem = await prisma5.productSearchHistory.delete({
+      const deletedItem = await prisma4.productSearchHistory.delete({
         where: { id }
       });
       return deletedItem;
@@ -544,12 +479,12 @@ var ProductSearchHistoryService = class {
 var ProductService = class {
   productSearchHistoryService = new ProductSearchHistoryService();
   async list(page = 1, pageSize = 10) {
-    const data = await prisma6.product.findMany({
+    const data = await prisma5.product.findMany({
       take: pageSize,
       skip: (page - 1) * pageSize,
       include: { category: true }
     });
-    const hasMore = (await prisma6.product.findMany({
+    const hasMore = (await prisma5.product.findMany({
       take: 1,
       skip: (page - 1) * pageSize + 1
     })).length;
@@ -560,18 +495,23 @@ var ProductService = class {
       const result = ProductSchema.parse({
         ...data,
         url: slug2(data.name),
+        price: Number(data.price),
+        discount: Number(data.discount),
+        quantity: Number(data.quantity),
+        categoryId: Number(data.categoryId),
         createdAt: /* @__PURE__ */ new Date(),
         updatedAt: /* @__PURE__ */ new Date()
       });
-      return prisma6.product.create({ data: result });
+      return prisma5.product.create({ data: result });
     } catch (e) {
+      console.log(e);
       return null;
     }
   }
   async upsert(data) {
     try {
       const result = ProductSchema.parse(data);
-      return prisma6.product.upsert({
+      return prisma5.product.upsert({
         where: { url: result.url },
         create: result,
         update: { updatedAt: /* @__PURE__ */ new Date() }
@@ -582,7 +522,7 @@ var ProductService = class {
   }
   async insertBatch(data) {
     try {
-      const createdProducts = await prisma6.product.createMany({ data });
+      const createdProducts = await prisma5.product.createMany({ data });
       return createdProducts;
     } catch (error) {
       console.log("Error inserting products:", error);
@@ -591,7 +531,7 @@ var ProductService = class {
   }
   async getById(id) {
     const { id: Id } = ProductIdSchema.parse({ id });
-    return prisma6.product.findUnique({
+    return prisma5.product.findUnique({
       where: { id: Id },
       include: { images: true }
     });
@@ -600,8 +540,8 @@ var ProductService = class {
     try {
       const { id: Id } = ProductIdSchema.parse({ id });
       const result = ProductPartialSchema.parse(data);
-      await prisma6.product.update({ where: { id: Id }, data: result });
-      return prisma6.product.findUnique({ where: { id } });
+      await prisma5.product.update({ where: { id: Id }, data: result });
+      return prisma5.product.findUnique({ where: { id } });
     } catch (error) {
       return null;
     }
@@ -609,10 +549,26 @@ var ProductService = class {
   async delete(id) {
     try {
       const { id: Id } = ProductIdSchema.parse({ id });
-      const deletedProduct = await prisma6.product.delete({ where: { id: Id } });
+      const deletedProduct = await prisma5.product.delete({ where: { id: Id } });
       return deletedProduct;
     } catch (error) {
       return null;
+    }
+  }
+  async searchProductTag(searchQuery) {
+    try {
+      const products = await prisma5.$queryRaw`
+      SELECT tags
+      FROM Product
+      WHERE MATCH(name, description,tags) AGAINST (${searchQuery} IN NATURAL LANGUAGE MODE)
+      order by id desc LIMIT 20 ;
+    `;
+      return matchMostSimilarQuery(
+        products.flatMap((p) => p.tags?.split(",")).filter((t) => t),
+        searchQuery
+      );
+    } catch (e) {
+      return [];
     }
   }
   async searchProducts({
@@ -621,7 +577,7 @@ var ProductService = class {
     deviceType
   }) {
     try {
-      const products = await prisma6.$queryRaw`
+      const products = await prisma5.$queryRaw`
       SELECT *
       FROM Product
       WHERE MATCH(name, description,tags) AGAINST (${searchQuery} IN NATURAL LANGUAGE MODE)
@@ -640,48 +596,13 @@ var ProductService = class {
       return [];
     }
   }
-  async searchWithRedisStack(searchQuery) {
-    try {
-      const client2 = await redisClient();
-      const spellingFixedQuery = (await Promise.all(
-        searchQuery.split(" ").map(async (word) => {
-          if (stopwords.stopwords.includes(word.toLowerCase()))
-            return;
-          const checkSpelling = await client2.ft.spellCheck(
-            `idx:${redisProductSchema}`,
-            word
-          );
-          return checkSpelling[0]?.suggestions[0]?.suggestion ?? word;
-        })
-      )).filter((w) => w);
-      const results = await client2.ft.search(
-        `idx:${redisProductSchema}`,
-        `@name:(${spellingFixedQuery.join(" ")}) | @description:(${spellingFixedQuery.join(" ")}) `,
-        {
-          LIMIT: {
-            from: 0,
-            size: 100
-          },
-          SCORER: "BM25"
-        }
-      );
-      const tags = results.documents.map((d) => ({
-        ...d.value
-      })).flatMap((p) => p.tags?.split(",")).filter((p) => p);
-      const mostSimilarTags = matchMostSimilarQuery(tags, searchQuery);
-      return mostSimilarTags.splice(0, 20);
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
-  }
   async getProductsByCategoryId({
     categoryId,
     page = 1,
     pageSize = 100
   }) {
     try {
-      return prisma6.product.findMany({
+      return prisma5.product.findMany({
         where: { categoryId },
         take: pageSize,
         skip: (page - 1) * pageSize
@@ -707,7 +628,7 @@ var upload = multer({
   storage: multerS3({
     s3,
     bucket: env.S3_BUCKET,
-    acl: "public-read",
+    // acl: 'public-read',
     metadata: (_, file, cb) => {
       cb(null, { fieldName: file.fieldname });
     },
@@ -735,9 +656,13 @@ adminRouter.post(
   "/login",
   asyncHandler(
     async (req, response) => {
-      const loginData = req.body;
-      const user = await userService2.login(loginData);
-      response.send(user);
+      const { email, password } = req.body;
+      const user = await userService2.login({ email, password });
+      if (!user) {
+        response.status(401).send({ error: "Invalid email or password" });
+      } else {
+        response.status(200).send(user);
+      }
     }
   )
 );
@@ -817,7 +742,11 @@ adminRouter.post(
   asyncHandler(async (req, response) => {
     const categoryData = req.body;
     const category = await categoryService.create(categoryData);
-    response.send(category);
+    if (category) {
+      response.send(category);
+    } else {
+      response.status(500).send({ error: "Unable to create Category" });
+    }
   })
 );
 adminRouter.post(
@@ -827,7 +756,11 @@ adminRouter.post(
     const id = Number(req.params.id);
     const categoryData = req.body;
     const result = await categoryService.update(id, categoryData);
-    response.send(result);
+    if (result) {
+      response.send(result);
+    } else {
+      response.status(500).send({ error: "Unable to update Category" });
+    }
   })
 );
 adminRouter.get(
@@ -871,8 +804,10 @@ adminRouter.post(
         productId: product.id
       }));
       await productImageService.insertBatch(imageData);
+      response.send(product);
+    } else {
+      response.status(500).send({ error: "Unable to create Product" });
     }
-    response.send(product);
   })
 );
 adminRouter.post(
@@ -882,7 +817,11 @@ adminRouter.post(
     const id = Number(req.params.id);
     const productData = req.body;
     const result = await productService.update(id, productData);
-    response.send(result);
+    if (result) {
+      response.send(result);
+    } else {
+      response.status(500).send({ error: "Unable to update Product" });
+    }
   })
 );
 adminRouter.post(
@@ -896,47 +835,16 @@ adminRouter.post(
       productId,
       url: file.location
     });
-    response.send(image);
+    if (image) {
+      response.send(image);
+    } else {
+      response.status(500).send({ error: "Unable to upload new image" });
+    }
   })
 );
 
 // src/routes/router.ts
 import express2 from "express";
-
-// src/elastic-search/search.ts
-var elasticSearchProductsTags = async (searchQuery) => {
-  try {
-    const results = await esClient.search({
-      index: productTagIndexName,
-      body: {
-        size: 100,
-        // Return only the first 100 results
-        query: {
-          multi_match: {
-            query: searchQuery,
-            fields: ["tags"],
-            type: "best_fields",
-            fuzziness: "AUTO",
-            operator: "AND",
-            tie_breaker: 0.3,
-            minimum_should_match: "75%",
-            boost: 2
-          }
-        }
-      }
-    });
-    const tags = results.hits.hits.map((h) => {
-      return h._source ? {
-        ...h._source
-      } : null;
-    }).filter((h) => h).map((h) => h.tags);
-    const mostSimilarTags = matchMostSimilarQuery(tags, searchQuery);
-    return mostSimilarTags.splice(0, 20);
-  } catch (e) {
-    console.error(e);
-    return [];
-  }
-};
 
 // src/utils/detect-device.ts
 import { DeviceType } from "@ecommerce/database";
@@ -992,19 +900,7 @@ router.get(
     if (!searchQuery) {
       response.send([]);
     } else {
-      const products = await elasticSearchProductsTags(searchQuery);
-      response.send(products);
-    }
-  })
-);
-router.get(
-  "/products/suggestions-redis/:query",
-  asyncHandler2(async (req, response) => {
-    const searchQuery = req.params.query;
-    if (!searchQuery) {
-      response.send([]);
-    } else {
-      const products = await productService2.searchWithRedisStack(searchQuery);
+      const products = await productService2.searchProductTag(searchQuery);
       response.send(products);
     }
   })

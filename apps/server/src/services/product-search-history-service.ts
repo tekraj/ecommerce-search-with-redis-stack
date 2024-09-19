@@ -1,8 +1,6 @@
 import type { Prisma, ProductSearchHistory } from '@ecommerce/database';
 import { ProductSearchHistorySchema, prisma } from '@ecommerce/database';
 
-import { addNewProductTag } from '~/elastic-search/sync';
-
 export class ProductSearchHistoryService {
   async list(page = 1, pageSize = 10): Promise<ProductSearchHistory[]> {
     return prisma.productSearchHistory.findMany({
@@ -28,9 +26,6 @@ export class ProductSearchHistoryService {
       const history = await prisma.productSearchHistory.create({
         data: result,
       });
-      if (result.resultsCount > 0) {
-        await addNewProductTag(data.keyword);
-      }
       return history;
     } catch (e) {
       return null;

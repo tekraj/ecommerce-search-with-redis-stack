@@ -1,0 +1,8 @@
+{
+  "apps": [
+    {
+      "name": "server",
+      "script": "pnpm start -F server"
+    }
+  ]
+}
