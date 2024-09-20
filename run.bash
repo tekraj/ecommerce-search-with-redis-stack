@@ -11,8 +11,5 @@ ln -s /etc/nginx/sites-available/frontend  /etc/nginx/sites-enabled/
 service nginx restart
 
 # Start PM2 services
-pm2 serve apps/admin/build/ 3002 --name "admin" --spa
-pm2 serve apps/ecommece-web/build/ 3001 --name "ecommece" --spa
-
-pm2 start app.config.json
+pnpm initial-setup
 
