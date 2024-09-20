@@ -13,3 +13,5 @@ service nginx restart
 # Start PM2 services
 pnpm initial-setup
 
+pm2 serve apps/admin/build/ 3002 --name "admin" --spa
+pm2 serve apps/ecommerce-web/build/ 3001 --name "ecommerce" --spa
