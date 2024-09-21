@@ -32,12 +32,15 @@
   "dependencies": {
     "@heroicons/react": "^2.1.5",
     "@tanstack/react-query": "^5.51.16",
+    "@types/react-slick": "^0.23.13",
     "axios": "^1.7.2",
     "flowbite-react": "^0.10.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.25.1",
     "react-scripts": "5.0.1",
+    "react-slick": "^0.30.2",
+    "slick-carousel": "^1.8.1",
     "use-debounce": "^10.0.2",
     "web-vitals": "^2.1.4"
   },

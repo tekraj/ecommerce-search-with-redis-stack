@@ -2,8 +2,7 @@
 import cors from "cors";
 import "dotenv/config";
 import express3 from "express";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import path2 from "node:path";
 
 // src/env.mjs
 import { createEnv } from "@t3-oss/env-core";
@@ -26,11 +25,18 @@ var env = createEnv({
   emptyStringAsUndefined: true
 });
 
+// src/get-upload-dir.ts
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+var filename = fileURLToPath(import.meta.url);
+var dirname = path.join(path.dirname(filename));
+var getUploadDir = () => {
+  return path.join(dirname, "../uploads");
+};
+
 // src/routes/admin-router.ts
-import * as clientS3 from "@aws-sdk/client-s3";
 import express from "express";
 import multer from "multer";
-import multerS3 from "multer-s3";
 
 // src/services/user-service.ts
 import {
@@ -490,7 +496,7 @@ var ProductService = class {
     const data = await prisma5.product.findMany({
       take: pageSize,
       skip: (page - 1) * pageSize,
-      include: { category: true }
+      include: { category: true, images: true }
     });
     const hasMore = (await prisma5.product.findMany({
       take: 1,
@@ -541,7 +547,7 @@ var ProductService = class {
     const { id: Id } = ProductIdSchema.parse({ id });
     return prisma5.product.findUnique({
       where: { id: Id },
-      include: { images: true }
+      include: { images: true, category: true }
     });
   }
   async update(id, data) {
@@ -591,6 +597,14 @@ var ProductService = class {
       WHERE MATCH(name, description,tags) AGAINST (${searchQuery} IN NATURAL LANGUAGE MODE)
       order by id desc LIMIT 20 ;
     `;
+      const productsWithImages = await Promise.all(
+        products.map(async (p) => {
+          const images = await prisma5.productImage.findMany({
+            where: { productId: p.id }
+          });
+          return { ...p, images };
+        })
+      );
       void this.productSearchHistoryService.create({
         keyword: searchQuery,
         ip,
@@ -599,7 +613,7 @@ var ProductService = class {
         resultsCount: products.length,
         newKeyword: true
       });
-      return products;
+      return productsWithImages;
     } catch (e) {
       return [];
     }
@@ -625,26 +639,17 @@ var ProductService = class {
 // src/routes/admin-router.ts
 var defaultS3Bucket = env.S3_BUCKET;
 var symptomDataS3Bucket = env.S3_BUCKET;
-var s3 = new clientS3.S3Client({
-  region: env.AWS_REGION,
-  credentials: {
-    accessKeyId: env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: env.AWS_SECRET_ACCESS_KEY
+var storage = multer.diskStorage({
+  destination: (_, __, cb) => {
+    cb(null, getUploadDir());
+  },
+  filename: (_, file, cb) => {
+    const fileName = `product-image-${Date.now().toString()}-${file.originalname}`;
+    cb(null, fileName);
   }
 });
 var upload = multer({
-  storage: multerS3({
-    s3,
-    bucket: env.S3_BUCKET,
-    // acl: 'public-read',
-    metadata: (_, file, cb) => {
-      cb(null, { fieldName: file.fieldname });
-    },
-    key: (_, file, cb) => {
-      const fileName = `product-image-${Date.now().toString()}-${file.originalname}`;
-      cb(null, fileName);
-    }
-  }),
+  storage,
   limits: {
     fileSize: 10 * 1024 * 1024
   }
@@ -808,7 +813,7 @@ adminRouter.post(
     });
     if (product) {
       const imageData = images.map((image) => ({
-        url: image.location,
+        url: image.filename,
         productId: product.id
       }));
       await productImageService.insertBatch(imageData);
@@ -841,7 +846,7 @@ adminRouter.post(
     const file = req.file;
     const image = await productImageService.create({
       productId,
-      url: file.location
+      url: file.filename
     });
     if (image) {
       response.send(image);
@@ -951,11 +956,10 @@ process.on("unhandledRejection", (err) => {
 process.on("uncaughtException", (error) => {
   console.error("uncaughtException error:", error);
 });
-var filename = fileURLToPath(import.meta.url);
-var dirname = path.dirname(filename);
 var app = express3();
 app.use(cors());
-var publicDir = path.join(dirname, "../public");
+app.use("/images", express3.static(path2.join(dirname, "../uploads")));
+var publicDir = path2.join(dirname, "../public");
 global.publicDir = publicDir;
 app.use(express3.static(publicDir));
 var port = env.PORT;

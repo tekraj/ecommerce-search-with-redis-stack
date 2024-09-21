@@ -9,6 +9,7 @@ import { createNewProduct, getProductById, updateProduct, uploadImage, deleteIma
 import { toast } from "react-toastify";
 import type { ProductImage } from "@ecommerce/database";
 import { listCategories } from "src/services/category-service";
+import { getImageURL } from "src/services/api";
 
 // Define the Zod schema for product
 const ProductSchema = z.object({
@@ -298,7 +299,7 @@ export function ProductForm() {
                                         <img
                                             alt="Product"
                                             className="w-full h-full object-cover rounded"
-                                            src={item.url}
+                                            src={getImageURL(item.url)}
                                         />
                                         <button
                                             className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-1 px-2 rounded"

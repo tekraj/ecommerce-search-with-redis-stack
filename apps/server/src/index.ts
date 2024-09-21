@@ -3,9 +3,9 @@ import 'dotenv/config';
 import type { Application } from 'express';
 import express from 'express';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import { env } from './env.mjs';
+import { dirname } from './get-upload-dir';
 import { adminRouter } from './routes/admin-router';
 import { router } from './routes/router';
 
@@ -16,10 +16,11 @@ process.on('unhandledRejection', (err) => {
 process.on('uncaughtException', (error) => {
   console.error('uncaughtException error:', error);
 });
-const filename = fileURLToPath(import.meta.url);
-const dirname = path.dirname(filename);
+
 const app: Application = express();
 app.use(cors());
+app.use('/images', express.static(path.join(dirname, '../uploads')));
+
 const publicDir = path.join(dirname, '../public');
 global.publicDir = publicDir;
 app.use(express.static(publicDir));

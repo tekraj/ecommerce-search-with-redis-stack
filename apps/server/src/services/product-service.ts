@@ -19,7 +19,7 @@ export class ProductService {
     const data = await prisma.product.findMany({
       take: pageSize,
       skip: (page - 1) * pageSize,
-      include: { category: true },
+      include: { category: true, images: true },
     });
     const hasMore = (
       await prisma.product.findMany({
@@ -82,7 +82,7 @@ export class ProductService {
     const { id: Id } = ProductIdSchema.parse({ id });
     return prisma.product.findUnique({
       where: { id: Id },
-      include: { images: true },
+      include: { images: true, category: true },
     });
   }
 
@@ -143,6 +143,14 @@ export class ProductService {
       WHERE MATCH(name, description,tags) AGAINST (${searchQuery} IN NATURAL LANGUAGE MODE)
       order by id desc LIMIT 20 ;
     `;
+      const productsWithImages = await Promise.all(
+        products.map(async (p) => {
+          const images = await prisma.productImage.findMany({
+            where: { productId: p.id },
+          });
+          return { ...p, images };
+        }),
+      );
       void this.productSearchHistoryService.create({
         keyword: searchQuery,
         ip,
@@ -151,7 +159,7 @@ export class ProductService {
         resultsCount: products.length,
         newKeyword: true,
       });
-      return products;
+      return productsWithImages;
     } catch (e) {
       return [];
     }

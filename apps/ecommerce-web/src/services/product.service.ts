@@ -1,21 +1,24 @@
 import axios from 'axios';
 import { REST_API_URL } from 'src/data/constants';
+import type { ProductWithImages } from 'src/types';
 
-import type { Category, Product } from '@ecommerce/database';
+import type { Category } from '@ecommerce/database';
 
 import { restClient } from './api';
 
 export const listProduct = (
   page = 1,
   pageSize = 50,
-): Promise<{ data: Product[] }> => {
+): Promise<{ data: ProductWithImages[] }> => {
   return axios
-    .get<{ data: Product[] }>(`${REST_API_URL}/products/${page}/${pageSize}`)
+    .get<{
+      data: ProductWithImages[];
+    }>(`${REST_API_URL}/products/${page}/${pageSize}`)
     .then((response) => response.data);
 };
-export const searchProducts = (text: string): Promise<Product[]> => {
+export const searchProducts = (text: string): Promise<ProductWithImages[]> => {
   return restClient
-    .get<Product[]>(`/products/search/${text}`)
+    .get<ProductWithImages[]>(`/products/search/${text}`)
     .then((response) => response.data);
 };
 export const searchSuggestions = (text: string): Promise<string[]> => {
@@ -54,10 +57,10 @@ export const getProductByCategoryId = ({
   page: number;
   pageSize: number;
   categoryId: number;
-}): Promise<Product[]> => {
+}): Promise<ProductWithImages[]> => {
   return axios
     .get<
-      Product[]
+      ProductWithImages[]
     >(`${REST_API_URL}/products/${categoryId}?page=${page}&pageSize=${pageSize}`)
     .then((response) => response.data);
 };

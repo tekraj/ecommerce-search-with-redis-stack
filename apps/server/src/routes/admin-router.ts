@@ -1,4 +1,3 @@
-import * as clientS3 from '@aws-sdk/client-s3';
 import express from 'express';
 import type {
   NextFunction,
@@ -8,11 +7,11 @@ import type {
   Router,
 } from 'express';
 import multer from 'multer';
-import multerS3 from 'multer-s3';
 
 import type { Prisma, User } from '@ecommerce/database';
 
 import { env } from '~/env.mjs';
+import { getUploadDir } from '~/get-upload-dir';
 import { adminMiddleware } from '~/middlewares/admin-middleware';
 import { CategoryService } from '~/services/category-service';
 import { ProductImageService } from '~/services/product-image-service';
@@ -21,26 +20,19 @@ import { UserService } from '~/services/user-service';
 
 export const defaultS3Bucket = env.S3_BUCKET;
 export const symptomDataS3Bucket = env.S3_BUCKET;
-export const s3 = new clientS3.S3Client({
-  region: env.AWS_REGION,
-  credentials: {
-    accessKeyId: env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+
+const storage = multer.diskStorage({
+  destination: (_, __, cb) => {
+    cb(null, getUploadDir());
+  },
+  filename: (_, file, cb) => {
+    const fileName = `product-image-${Date.now().toString()}-${file.originalname}`;
+    cb(null, fileName);
   },
 });
+
 const upload = multer({
-  storage: multerS3({
-    s3,
-    bucket: env.S3_BUCKET,
-    // acl: 'public-read',
-    metadata: (_, file, cb) => {
-      cb(null, { fieldName: file.fieldname });
-    },
-    key: (_, file, cb) => {
-      const fileName = `product-image-${Date.now().toString()}-${file.originalname}`;
-      cb(null, fileName);
-    },
-  }),
+  storage,
   limits: {
     fileSize: 10 * 1024 * 1024,
   },
@@ -212,7 +204,7 @@ adminRouter.post(
   asyncHandler(async (req: Request, response: Response) => {
     const { name, description, price, quantity, discount, tags, categoryId } =
       req.body as Prisma.ProductCreateInput & { categoryId: number };
-    const images = req.files as Express.MulterS3.File[];
+    const images = req.files as Express.Multer.File[];
 
     const product = await productService.create({
       name,
@@ -225,7 +217,7 @@ adminRouter.post(
     });
     if (product) {
       const imageData = images.map((image) => ({
-        url: image.location,
+        url: image.filename,
         productId: product.id,
       }));
       await productImageService.insertBatch(imageData);
@@ -256,11 +248,11 @@ adminRouter.post(
   upload.single('file'),
   asyncHandler(async (req: Request, response: Response) => {
     const productId = Number(req.params.productId);
-    const file = req.file as Express.MulterS3.File;
+    const file = req.file as unknown as Express.Multer.File;
 
     const image = await productImageService.create({
       productId,
-      url: file.location,
+      url: file.filename,
     });
     if (image) {
       response.send(image);

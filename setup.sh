@@ -43,3 +43,5 @@ if ! grep -q "location /backend/" /etc/nginx/sites-available/default; then
 fi
 
 service nginx restart
+mkdir apps/server/uploads
+chmod -R 777 apps/server/uploads
