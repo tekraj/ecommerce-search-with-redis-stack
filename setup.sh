@@ -24,14 +24,6 @@ if ! grep -q "location /backend/" /etc/nginx/sites-available/default; then
             proxy_set_header X-Forwarded-Proto $scheme; \
             rewrite ^/backend(.*)$ $1 break; \
         } \
-        location /ecommerce/ { \
-            proxy_pass http://localhost:3001/; \
-            proxy_set_header Host $host; \
-            proxy_set_header X-Real-IP $remote_addr; \
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; \
-            proxy_set_header X-Forwarded-Proto $scheme; \
-            rewrite ^/ecommerce(.*)$ $1 break; \
-        } \
         location /admin/ { \
             proxy_pass http://localhost:3002/; \
             proxy_set_header Host $host; \
@@ -39,6 +31,13 @@ if ! grep -q "location /backend/" /etc/nginx/sites-available/default; then
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; \
             proxy_set_header X-Forwarded-Proto $scheme; \
             rewrite ^/admin(.*)$ $1 break; \
+        } \
+        location / { \
+            proxy_pass http://localhost:3001/; \
+            proxy_set_header Host $host; \
+            proxy_set_header X-Real-IP $remote_addr; \
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; \
+            proxy_set_header X-Forwarded-Proto $scheme; \
         }' /etc/nginx/sites-available/default
 fi
 

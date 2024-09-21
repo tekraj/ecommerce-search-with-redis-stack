@@ -19,7 +19,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
 
-      <Router basename='/ecommerce'>
+      <Router>
         <Routes>
           <Route element={<MainLayout />}>
             <Route element={<Home />} path="/" />

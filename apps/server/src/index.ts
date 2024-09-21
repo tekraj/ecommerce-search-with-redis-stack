@@ -18,7 +18,12 @@ process.on('uncaughtException', (error) => {
 });
 
 const app: Application = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: '*',
+    credentials: true,
+  }),
+);
 app.use('/images', express.static(path.join(dirname, '../uploads')));
 
 const publicDir = path.join(dirname, '../public');
