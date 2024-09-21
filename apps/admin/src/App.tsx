@@ -25,7 +25,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Router>
+        <Router basename='/admin'>
           <Routes>
             <Route element={<ProtectedRoute />} path="/">
               <Route element={<DashboardLayout />}>

@@ -2,6 +2,7 @@
   "name": "admin",
   "version": "0.1.0",
   "private": true,
+  "homepage": "/admin/",
   "scripts": {
     "build": "react-scripts build",
     "dev": "PORT=3002 react-scripts start",
