@@ -20,7 +20,7 @@ export function Product() {
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Product List</h1>
-      <Link to="//products/add">
+      <Link to="/products/add">
         <button className="bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600" type='button'>
           Add Product
         </button>
