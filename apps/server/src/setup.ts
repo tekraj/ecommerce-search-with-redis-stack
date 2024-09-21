@@ -1,13 +1,11 @@
 import { UserService } from './services/user-service';
-import { hashPassword } from './utils/password';
 
 const userService = new UserService();
 const setup = async () => {
-  const password = await hashPassword('test');
-  return userService.create({
+  return userService.upsert({
     name: 'Test',
     email: 'test@gmail.com',
-    password,
+    password: 'test@123',
     createdAt: new Date(),
     updatedAt: new Date(),
   });

@@ -35,14 +35,18 @@ export class UserService {
     try {
       const result = UserSchema.parse({
         ...data,
-        createdAt: new Date(),
         updatedAt: new Date(),
       });
       result.password = await hashPassword(result.password);
-      return prisma.user.upsert({
-        where: { email: result.email },
-        create: result,
-        update: { updatedAt: new Date() },
+
+      if (await prisma.user.findFirst({ where: { email: result.email } })) {
+        return prisma.user.update({
+          where: { email: result.email },
+          data: result,
+        });
+      }
+      return prisma.user.create({
+        data: { ...result, createdAt: new Date() },
       });
     } catch (e) {
       return null;
@@ -99,7 +103,11 @@ export class UserService {
       if (!user) {
         return null;
       }
-      const matchPassword = await comparePassword(password, user.password);
+      const matchPassword = await comparePassword(
+        password.trim(),
+        user.password,
+      );
+      console.log({ matchPassword });
       if (!matchPassword) {
         return null;
       }
@@ -107,6 +115,7 @@ export class UserService {
 
       return { ...user, token };
     } catch (error) {
+      console.log(error);
       return null;
     }
   }

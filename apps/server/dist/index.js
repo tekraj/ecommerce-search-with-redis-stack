@@ -94,14 +94,17 @@ var UserService = class {
     try {
       const result = UserSchema.parse({
         ...data,
-        createdAt: /* @__PURE__ */ new Date(),
         updatedAt: /* @__PURE__ */ new Date()
       });
       result.password = await hashPassword(result.password);
-      return prisma.user.upsert({
-        where: { email: result.email },
-        create: result,
-        update: { updatedAt: /* @__PURE__ */ new Date() }
+      if (await prisma.user.findFirst({ where: { email: result.email } })) {
+        return prisma.user.update({
+          where: { email: result.email },
+          data: result
+        });
+      }
+      return prisma.user.create({
+        data: { ...result, createdAt: /* @__PURE__ */ new Date() }
       });
     } catch (e) {
       return null;
@@ -154,13 +157,18 @@ var UserService = class {
       if (!user) {
         return null;
       }
-      const matchPassword = await comparePassword(password, user.password);
+      const matchPassword = await comparePassword(
+        password.trim(),
+        user.password
+      );
+      console.log({ matchPassword });
       if (!matchPassword) {
         return null;
       }
       const token = createJWTToken(user);
       return { ...user, token };
     } catch (error) {
+      console.log(error);
       return null;
     }
   }

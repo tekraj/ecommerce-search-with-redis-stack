@@ -69,7 +69,7 @@ export function Header() {
             <header className="bg-gray-300 relative z-20 ">
                 <div className="container mx-auto p-4 flex items-center  ">
                     <div className="flex-shrink-0 w-[20%]">
-                        <Link to="/">
+                        <Link to="">
                             <Logo height={50} width={200} />
                         </Link>
                     </div>
@@ -121,7 +121,7 @@ export function Header() {
                     </div>
 
                     <div className="flex-shrink-0 w-[20%] ml-auto text-right">
-                        <Link className='inline-block' to="/cart">
+                        <Link className='inline-block' to="cart">
                             <CartIcon />
                         </Link>
                     </div>
@@ -130,7 +130,7 @@ export function Header() {
                     <div className="container mx-auto p-2">
                         <ul className="flex justify-around relative group">
                             <li >
-                                <Link className="text-gray-300 hover:text-white flex items-center space-x-2" to="/category">
+                                <Link className="text-gray-300 hover:text-white flex items-center space-x-2" to="category">
                                     <BarIcon />
                                     <span>Category</span>
                                 </Link>
@@ -162,10 +162,10 @@ export function Header() {
                             </li>
 
 
-                            <li><Link className="text-gray-300 hover:text-white" to="/">Home</Link></li>
-                            <li><Link className="text-gray-300 hover:text-white" to="/about">About Us</Link></li>
-                            <li><Link className="text-gray-300 hover:text-white" to="/contact">Contact</Link></li>
-                            <li><Link className="text-gray-300 hover:text-white" to="/cart">Cart</Link></li>
+                            <li><Link className="text-gray-300 hover:text-white" to="">Home</Link></li>
+                            <li><Link className="text-gray-300 hover:text-white" to="about">About Us</Link></li>
+                            <li><Link className="text-gray-300 hover:text-white" to="contact">Contact</Link></li>
+                            <li><Link className="text-gray-300 hover:text-white" to="cart">Cart</Link></li>
                         </ul>
                     </div>
                 </nav>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import { useAuth } from 'src/contexts/auth-context';
 import { ToastContainer } from "react-toastify";
 
@@ -26,12 +26,12 @@ export function DashboardLayout() {
           <ul>
             {sidebarLinks.map((link) => (
               <li key={link.name}>
-                <a
+                <Link
                   className="block px-4 py-2 text-lg hover:bg-gray-700"
-                  href={link.path}
+                  to={link.path}
                 >
                   {link.name}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
