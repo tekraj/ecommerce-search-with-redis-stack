@@ -957,7 +957,12 @@ process.on("uncaughtException", (error) => {
   console.error("uncaughtException error:", error);
 });
 var app = express3();
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+    credentials: true
+  })
+);
 app.use("/images", express3.static(path2.join(dirname, "../uploads")));
 var publicDir = path2.join(dirname, "../public");
 global.publicDir = publicDir;
