@@ -179,6 +179,7 @@ export class ProductService {
         where: { categoryId },
         take: pageSize,
         skip: (page - 1) * pageSize,
+        include: { images: true },
       });
     } catch (e) {
       console.log(e);

@@ -627,7 +627,8 @@ var ProductService = class {
       return prisma5.product.findMany({
         where: { categoryId },
         take: pageSize,
-        skip: (page - 1) * pageSize
+        skip: (page - 1) * pageSize,
+        include: { images: true }
       });
     } catch (e) {
       console.log(e);
