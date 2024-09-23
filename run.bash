@@ -6,7 +6,8 @@ find apps/ecommerce-web/build/ -type f -exec sed -i "s|http://localhost|http://$
 pm2 stop all
 pm2 serve apps/admin/build/ 3002 --name "admin" --spa
 pm2 serve apps/ecommerce-web/build/ 3001 --name "ecommerce" --spa
-
+cp .env apps/server/dist
+pm2 start  apps/server/dist/index.js
 
 
 
